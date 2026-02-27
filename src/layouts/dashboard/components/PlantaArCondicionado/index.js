@@ -88,7 +88,7 @@ function Badge({ id, acState, tempC, left, top, onClick }) {
         // ✅ Em xs vira "só bolinha"; em sm+ mantém o badge completo
         width: {
           xs: "clamp(14px, 2.4vw, 18px)",
-          sm: acState.length == 3 ? "clamp(28px, 4.8vw, 60px)" : "clamp(28px, 3.2vw, 44px)",
+          sm: acState.length == 3 ? "clamp(40px, 4.8vw, 60px)" : "clamp(28px, 3.2vw, 44px)",
         },
         height: {
           xs:
