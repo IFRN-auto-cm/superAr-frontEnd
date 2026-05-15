@@ -143,16 +143,6 @@ function Badge({ id, acState, tempC, left, top, onClick }) {
             }}
           />
         ))}
-        {/* <MDBox
-          sx={{
-            // ✅ Em xs a bolinha ocupa o badge todo
-            width: { xs: "100%", sm: "clamp(10px, 1.1vw, 14px)" },
-            height: { xs: "100%", sm: "clamp(10px, 1.1vw, 14px)" },
-            borderRadius: "50%",
-            bgcolor: cfg[0].dot,
-            border: "1px solid rgba(0,0,0,0.15)",
-          }}
-        /> */}
       </MDBox>
 
       {/* ✅ some automaticamente em xs */}
