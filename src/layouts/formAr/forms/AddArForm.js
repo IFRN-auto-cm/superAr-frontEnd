@@ -51,17 +51,17 @@ function AddArForm({
       <MDButton
         variant="contained"
         onClick={() => {
+          console.log("Tentando adequirir comando");
           const api = getApiAddress();
           // setIsToUpdateUsers(false);
-          fetch(api.serial + "/comando/" + identificadorComando, {
+          fetch(api.serial + "/ReadCommand/", {
             method: "GET",
-            body: JSON.stringify(identificadorComando),
             headers: { "Content-type": "application/json; charset=UTF-8" },
           })
             .then((response) => response.json())
             .then((json) => {
               if (json["status"] == "ok") {
-                alert("modificação realizada");
+                alert("comando adiquirido");
               } else {
                 alert("erro:" + json["status"]);
               }
@@ -184,4 +184,4 @@ AddArForm.propTypes = {
   setShowForm: PropTypes.func.isRequired, // obrigatório e precisa ser função
 };
 
-export default EditUserForm;
+export default AddArForm;
