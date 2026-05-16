@@ -45,7 +45,7 @@ function AddArForm({
   //   tipoUsuario: "aluno",
   // };
 
-  const Comando = ({ name }) => (
+  const Comando = ({ name, identificadorComando }) => (
     <MDBox display="flex" alignItems="center">
       <MDInput type="text" label={name} defaultValue="" disabled fullWidth></MDInput>
       <MDButton
@@ -53,21 +53,21 @@ function AddArForm({
         onClick={() => {
           const api = getApiAddress();
           // setIsToUpdateUsers(false);
-          // fetch(api.database + "/chave/" + identificadorUsuario, {
-          //   method: "DELETE",
-          //   body: JSON.stringify(identificadorUsuario),
-          //   headers: { "Content-type": "application/json; charset=UTF-8" },
-          // })
-          //   .then((response) => response.json())
-          //   .then((json) => {
-          //     if (json["status"] == "ok") {
-          //       alert("modificação realizada");
-          //     } else {
-          //       alert("erro:" + json["status"]);
-          //     }
-          //   })
-          //   .catch((err) => console.log(err));
-          //   // .finally(() => setIsToUpdateUsers(true));
+          fetch(api.serial + "/comando/" + identificadorComando, {
+            method: "GET",
+            body: JSON.stringify(identificadorComando),
+            headers: { "Content-type": "application/json; charset=UTF-8" },
+          })
+            .then((response) => response.json())
+            .then((json) => {
+              if (json["status"] == "ok") {
+                alert("modificação realizada");
+              } else {
+                alert("erro:" + json["status"]);
+              }
+            })
+            .catch((err) => console.log(err));
+          // .finally(() => setIsToUpdateUsers(true));
         }}
       >
         <MDTypography variant="button" fontWeight="regular" color="text">
@@ -78,6 +78,7 @@ function AddArForm({
   );
   Comando.propTypes = {
     name: PropTypes.string.isRequired,
+    identificadorComando: PropTypes.string.isRequired,
   };
 
   return (
@@ -135,16 +136,8 @@ function AddArForm({
               className="button"
               onClick={() => {
                 const data = {
-                  matr: inputMarca,
-                  nome: inputModelo,
-                  tipoUsuario: inputTipoUsario[0],
-                  tipoGerencia: inputTipoGeren[0],
-                  usuarioAtivo:
-                    inputUsuarioAtivo == true
-                      ? 1
-                      : inputUsuarioAtivo == false
-                      ? 0
-                      : inputUsuarioAtivo,
+                  marca: inputMarca,
+                  modelo: inputModelo,
                 };
               }}
             >
@@ -178,12 +171,14 @@ AddArForm.defaultProps = {
 AddArForm.propTypes = {
   identificadorUsuario: PropTypes.string,
   defaultValue: {
-    matricula: PropTypes.string,
-    nome: PropTypes.string,
-    tipoUsuario: PropTypes.string,
-    nivelGerencia: PropTypes.string,
-    chave: PropTypes.string,
-    usuarioAtivo: PropTypes.string,
+    marca: PropTypes.string,
+    modelo: PropTypes.string,
+    comandos: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        nome: PropTypes.string.isRequired,
+      })
+    ),
   },
   showForm: PropTypes.bool.isRequired, // obrigatório e precisa ser string
   setShowForm: PropTypes.func.isRequired, // obrigatório e precisa ser função
