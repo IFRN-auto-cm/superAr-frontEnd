@@ -14,16 +14,15 @@ import Card from "@mui/material/Card";
 
 import getApiAddress from "serverAddress";
 
-function EditUserForm({
-  identificadorUsuario,
+function AddArForm({
   defaultValue,
   showForm,
   setShowForm,
   // isToUpdate,
   // setIsToUpdate
 }) {
-  const [inputMarca, setInputMarca] = useState(defaultValue.matricula);
-  const [inputModelo, setInputModelo] = useState(defaultValue.nome);
+  const [inputMarca, setInputMarca] = useState(defaultValue.marca);
+  const [inputModelo, setInputModelo] = useState(defaultValue.modelo);
 
   // useEffect(() => {
   //   setInputMarca(defaultValue?.marca ?? "");
@@ -159,25 +158,6 @@ function EditUserForm({
             >
               Cancelar
             </MDButton>
-            <MDButton
-              className="button"
-              onClick={() => {
-                console.log("/usuario/" + identificadorUsuario);
-                // setIsToUpdateUsers(false);
-                const api = getApiAddress();
-                // fetch(api.database + "/usuario/" + identificadorUsuario, {
-                //   method: "DELETE",
-                //   body: JSON.stringify(identificadorUsuario),
-                //   headers: { "Content-type": "application/json; charset=UTF-8" },
-                // })
-                //   .then((response) => response.json())
-                //   .then((json) => console.log(json))
-                //   .catch((err) => console.log(err))
-                //   .finally(() => setIsToUpdate(true));
-              }}
-            >
-              Apagar
-            </MDButton>
           </div>
         </Card>
       </DialogContent>
@@ -186,20 +166,16 @@ function EditUserForm({
 }
 
 // Setting default values for the props of DefaultInfoCard
-EditUserForm.defaultProps = {
+AddArForm.defaultProps = {
   identificadorUsuario: "",
   defaultValue: {
-    matricula: "",
-    nome: "",
-    tipoUsuario: "",
-    nivelGerencia: "",
-    chave: "",
-    usuarioAtivo: "",
+    marca: "",
+    modelo: "",
   },
 };
 
 // Typechecking props for the DefaultInfoCard
-EditUserForm.propTypes = {
+AddArForm.propTypes = {
   identificadorUsuario: PropTypes.string,
   defaultValue: {
     matricula: PropTypes.string,
