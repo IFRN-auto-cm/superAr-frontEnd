@@ -38,6 +38,7 @@ Coded by www.creative-tim.com
 // Material Dashboard 2 React layouts
 import Dashboard from "layouts/dashboard";
 import Tables from "layouts/tables";
+import Forms from "layouts/formAr";
 import Billing from "layouts/billing";
 import RTL from "layouts/rtl";
 import Notifications from "layouts/notifications";
@@ -57,14 +58,23 @@ const routes = [
     route: "/dashboard",
     component: <Dashboard />,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Tables",
-  //   key: "tables",
-  //   icon: <Icon fontSize="small">table_view</Icon>,
-  //   route: "/tables",
-  //   component: <Tables />,
-  // },
+  {
+    type: "collapse",
+    name: "Cadastros",
+    key: "cadastro",
+    icon: <Icon fontSize="small">assignment</Icon>,
+    route: "/cadastro",
+    component: <Forms />,
+  },
+
+  {
+    type: "collapse",
+    name: "Tables",
+    key: "tables",
+    icon: <Icon fontSize="small">table_view</Icon>,
+    route: "/tables",
+    component: <Tables />,
+  },
   // {
   //   type: "collapse",
   //   name: "Billing",
