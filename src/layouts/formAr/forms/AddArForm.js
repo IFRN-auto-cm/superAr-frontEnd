@@ -32,10 +32,42 @@ function AddArForm({
     { index: 6, valor: "", nome: "Ligar 26º" },
   ];
 
+  const [cmds, setCmds] = useState(comandos);
+
   const [inputMarca, setInputMarca] = useState(defaultValue.marca);
   const [inputModelo, setInputModelo] = useState(defaultValue.modelo);
-  const { columns: cColumns, rows: cRows } = commandsTableData(comandos);
+  const [update, setUpdate] = useState(true);
 
+  const handleBotao = (comandoIndex) => {
+    console.log("Comando index: " + comandoIndex);
+
+    console.log("Tentando adquirir comando");
+
+    const api = getApiAddress();
+
+    fetch(api.serial + "/readCommand", {
+      method: "GET",
+      headers: { "Content-type": "application/json; charset=UTF-8" },
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        if (json["status"] === "ok") {
+          let c = cmds;
+          c[comandoIndex].valor = json["comando"];
+          setCmds(c);
+          setUpdate(!update);
+
+          // alert("comando adquirido");
+        } else {
+          alert("erro:" + json["status"]);
+        }
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const { columns: cColumns, rows: cRows } = commandsTableData(cmds, handleBotao);
+
+  console.log("fdafadsf");
   // useEffect(() => {
   //   setInputMarca(defaultValue?.marca ?? "");
   //   setInputModelo(defaultValue?.modelo ?? "");
