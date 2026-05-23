@@ -40,7 +40,7 @@ import getApiAddress from "serverAddress";
 import { useState } from "react";
 
 export default function data(comandos) {
-  const [valorComandos, setValorComandos] = useState();
+  const [valorComandos, setValorComandos] = useState(comandos);
 
   const ComandoName = ({ image, name, valor }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
@@ -104,7 +104,7 @@ export default function data(comandos) {
       </MDBox>
     </MDBox>
   );
-
+  console.log(comandos);
   const handleButao = (comandoIndex) => {
     console.log("Comando index: " + comandoIndex);
 
@@ -120,8 +120,9 @@ export default function data(comandos) {
       .then((json) => {
         if (json["status"] === "ok") {
           console.log(json["comando"]);
-
-          setComando(json["comando"]);
+          let cmds = valorComandos;
+          cmds[comandoIndex].valor = json["comando"];
+          setValorComandos(cmds);
 
           alert("comando adquirido");
         } else {
@@ -140,12 +141,12 @@ export default function data(comandos) {
       { Header: "Ler Comando", accessor: "action", align: "center" },
     ],
 
-    rows: comandos.map((comando) => ({
+    rows: valorComandos.map((comando, index) => ({
       project: <ComandoName name={comando.nome} valor={comando.valor} />,
       action: (
         <Button
           variant="text"
-          onClick={() => handleButao(comando.index)}
+          onClick={() => handleButao(index)}
           startIcon={<SettingsRemoteIcon color="secondary" fontSize="large" />}
         >
           <MDTypography fontSize="small" color="secondary">
