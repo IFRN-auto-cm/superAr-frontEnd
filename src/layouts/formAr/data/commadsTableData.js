@@ -86,7 +86,7 @@ export default function data(comandos, handleBotao) {
           startIcon={<SettingsRemoteIcon color="secondary" fontSize="large" />}
         >
           <MDTypography fontSize="small" color="secondary">
-            Ler sensor
+            Ler infravermelho
           </MDTypography>
         </Button>
       ),
