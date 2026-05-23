@@ -13,6 +13,8 @@ import Card from "@mui/material/Card";
 // import MySelect from "layouts/tables/myComponents";
 
 import getApiAddress from "serverAddress";
+import DataTable from "examples/Tables/DataTable";
+import commandsTableData from "layouts/formAr/data/commadsTableData";
 
 function AddArForm({
   defaultValue,
@@ -21,8 +23,18 @@ function AddArForm({
   // isToUpdate,
   // setIsToUpdate
 }) {
+  const comandos = [
+    { index: 1, valor: "", nome: "Desligar" },
+    { index: 2, valor: "", nome: "Ligar 30º" },
+    { index: 3, valor: "", nome: "Ligar 29º" },
+    { index: 4, valor: "", nome: "Ligar 28º" },
+    { index: 5, valor: "", nome: "Ligar 27º" },
+    { index: 6, valor: "", nome: "Ligar 26º" },
+  ];
+
   const [inputMarca, setInputMarca] = useState(defaultValue.marca);
   const [inputModelo, setInputModelo] = useState(defaultValue.modelo);
+  const { columns: cColumns, rows: cRows } = commandsTableData(comandos);
 
   // useEffect(() => {
   //   setInputMarca(defaultValue?.marca ?? "");
@@ -33,49 +45,49 @@ function AddArForm({
     setInputMarca(event.target.value);
   };
   const handleModelo = (event) => {
-    setInputName(event.target.value);
+    setInputModelo(event.target.value);
   };
 
-  // const dadosVaziosUsuario = {
-  //   matricula: "",
-  //   nome: "",
-  //   ativo: "",
-  //   chave: "",
-  //   nivelGerencia: "usuário",
-  //   tipoUsuario: "aluno",
-  // };
+  const Comando = ({ name, identificadorComando }) => {
+    const [comando, setComando] = useState("");
 
-  const Comando = ({ name, identificadorComando }) => (
-    <MDBox display="flex" alignItems="center">
-      <MDInput type="text" label={name} defaultValue="" disabled fullWidth></MDInput>
-      <MDButton
-        variant="contained"
-        onClick={() => {
-          console.log("Tentando adequirir comando");
-          const api = getApiAddress();
-          // setIsToUpdateUsers(false);
-          fetch(api.serial + "/ReadCommand/", {
-            method: "GET",
-            headers: { "Content-type": "application/json; charset=UTF-8" },
-          })
-            .then((response) => response.json())
-            .then((json) => {
-              if (json["status"] == "ok") {
-                alert("comando adiquirido");
-              } else {
-                alert("erro:" + json["status"]);
-              }
+    return (
+      <MDBox display="flex" alignItems="center">
+        <MDInput type="text" label={name} value={comando} disabled fullWidth />
+
+        <MDButton
+          variant="contained"
+          onClick={() => {
+            console.log("Tentando adquirir comando");
+
+            const api = getApiAddress();
+
+            fetch(api.serial + "/readCommand", {
+              method: "GET",
+              headers: { "Content-type": "application/json; charset=UTF-8" },
             })
-            .catch((err) => console.log(err));
-          // .finally(() => setIsToUpdateUsers(true));
-        }}
-      >
-        <MDTypography variant="button" fontWeight="regular" color="text">
-          Ler Comando
-        </MDTypography>
-      </MDButton>
-    </MDBox>
-  );
+              .then((response) => response.json())
+              .then((json) => {
+                if (json["status"] === "ok") {
+                  console.log(json["comando"]);
+
+                  setComando(json["comando"]);
+
+                  alert("comando adquirido");
+                } else {
+                  alert("erro:" + json["status"]);
+                }
+              })
+              .catch((err) => console.log(err));
+          }}
+        >
+          <MDTypography variant="button" fontWeight="regular" color="text">
+            Ler Comando
+          </MDTypography>
+        </MDButton>
+      </MDBox>
+    );
+  };
   Comando.propTypes = {
     name: PropTypes.string.isRequired,
     identificadorComando: PropTypes.string.isRequired,
@@ -111,6 +123,13 @@ function AddArForm({
             fullWidth
           ></MDInput>
           <MDBox pt={1}></MDBox>
+          <DataTable
+            table={{ columns: cColumns, rows: cRows }}
+            isSorted={false}
+            entriesPerPage={false}
+            showTotalEntries={false}
+            noEndBorder
+          />
           <Comando name="Desligar" />
           <Comando name="Ligar 30 graus" />
           <Comando name="Ligar 29 graus" />

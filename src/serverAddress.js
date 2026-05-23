@@ -1,7 +1,7 @@
 // endereço do servidor onde está a API
 export default function getApiAddress() {
   // const apiAddress = { database: "https://10.34.9.178/api", serial: "localhost" };
-  const apiAddress = { database: "http://127.0.0.1:5000", serial: "http://127.0.0.1:8000" };
+  const apiAddress = { database: "http://127.0.0.1:5000", serial: "http://127.0.0.1:5001" };
   return apiAddress;
 }
 
