@@ -15,6 +15,89 @@ import Card from "@mui/material/Card";
 import getApiAddress from "serverAddress";
 import DataTable from "examples/Tables/DataTable";
 import commandsTableData from "layouts/formAr/data/commadsTableData";
+import CircularProgress from "@mui/material/CircularProgress";
+// import ErrorOutlineIcon from "@mui/material/icons/ErrorOutline";
+import ReportGmailerrorredIcon from "@mui/icons-material/ReportGmailerrorred";
+import Box from "@mui/material/Box";
+
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
+import Stack from "@mui/material/Stack";
+
+function WaitData({ message, gif, showForm, setShowForm }) {
+  return (
+    <Dialog
+      open={Boolean(showForm)}
+      onClose={() => setShowForm(false)}
+      // evita que o clique dentro do Dialog borbulhe e dispare handlers da linha/tabela
+      onClick={(e) => e.stopPropagation()}
+      PaperProps={{
+        sx: {
+          width: {
+            xs: "90vw",
+            sm: "75vw",
+            md: "25vw",
+          },
+          maxWidth: "none",
+        },
+      }}
+    >
+      <DialogTitle>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          {message}
+        </Box>
+      </DialogTitle>
+      <DialogContent dividers>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "120px",
+          }}
+        >
+          {gif == "erro" ? <ReportGmailerrorredIcon fontSize="large" /> : <CircularProgress />}
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "120px",
+          }}
+        >
+          <MDButton
+            className="button"
+            onClick={() => {
+              setShowForm(false);
+            }}
+          >
+            Cancelar
+          </MDButton>
+        </Box>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+WaitData.defaultProps = {
+  message: "",
+  gif: "wait",
+};
+
+// Typechecking props for the DefaultInfoCard
+WaitData.propTypes = {
+  message: PropTypes.string,
+  gif: PropTypes.string,
+  showForm: PropTypes.bool.isRequired, // obrigatório e precisa ser string
+  setShowForm: PropTypes.func.isRequired, // obrigatório e precisa ser função
+};
 
 function AddArForm({
   defaultValue,
@@ -30,6 +113,16 @@ function AddArForm({
     { index: 4, valor: "", nome: "Ligar 28º" },
     { index: 5, valor: "", nome: "Ligar 27º" },
     { index: 6, valor: "", nome: "Ligar 26º" },
+    { index: 7, valor: "", nome: "Ligar 25º" },
+    { index: 8, valor: "", nome: "Ligar 24º" },
+    { index: 9, valor: "", nome: "Ligar 23º" },
+    { index: 10, valor: "", nome: "Ligar 22º" },
+    { index: 11, valor: "", nome: "Ligar 21º" },
+    { index: 12, valor: "", nome: "Ligar 20º" },
+    { index: 13, valor: "", nome: "Ligar 19º" },
+    { index: 14, valor: "", nome: "Ligar 18º" },
+    { index: 15, valor: "", nome: "Ligar 17º" },
+    { index: 16, valor: "", nome: "Ligar 16º" },
   ];
 
   const [cmds, setCmds] = useState(comandos);
@@ -37,12 +130,18 @@ function AddArForm({
   const [inputMarca, setInputMarca] = useState(defaultValue.marca);
   const [inputModelo, setInputModelo] = useState(defaultValue.modelo);
   const [update, setUpdate] = useState(true);
+  const [showWait, setShowWait] = useState(false);
+  const [waitConfig, setWaitConfig] = useState({
+    message: "Esperando comando infravermelho",
+    gif: "wait",
+  });
 
   const handleBotao = (comandoIndex) => {
     console.log("Comando index: " + comandoIndex);
 
-    console.log("Tentando adquirir comando");
-
+    // console.log("Tentando adquirir comando");
+    setShowWait(true);
+    setWaitConfig({ message: "Esperando comando infravermelho", gif: "wait" });
     const api = getApiAddress();
 
     fetch(api.serial + "/readCommand", {
@@ -56,10 +155,13 @@ function AddArForm({
           c[comandoIndex].valor = json["comando"];
           setCmds(c);
           setUpdate(!update);
+          setShowWait(false);
 
           // alert("comando adquirido");
         } else {
-          alert("erro:" + json["status"]);
+          setShowWait(true);
+          setWaitConfig({ message: "Erro: " + json["status"], gif: "erro" });
+          // alert("erro:" + json["status"]);
         }
       })
       .catch((err) => console.log(err));
@@ -67,7 +169,6 @@ function AddArForm({
 
   const { columns: cColumns, rows: cRows } = commandsTableData(cmds, handleBotao);
 
-  console.log("fdafadsf");
   // useEffect(() => {
   //   setInputMarca(defaultValue?.marca ?? "");
   //   setInputModelo(defaultValue?.modelo ?? "");
@@ -159,29 +260,9 @@ function AddArForm({
             table={{ columns: cColumns, rows: cRows }}
             isSorted={false}
             entriesPerPage={false}
-            showTotalEntries={false}
-            noEndBorder
+            showTotalEntries={true}
+            // noEndBorder
           />
-          <Comando name="Desligar" />
-          <Comando name="Ligar 30 graus" />
-          <Comando name="Ligar 29 graus" />
-          <Comando name="Ligar 28 graus" />
-          <Comando name="Ligar 27 graus" />
-          <Comando name="Ligar 26 graus" />
-          <Comando name="Ligar 25 graus" />
-          <Comando name="Ligar 24 graus" />
-          <Comando name="Ligar 23 graus" />
-          <Comando name="Ligar 22 graus" />
-          <Comando name="Ligar 21 graus" />
-          <Comando name="Ligar 20 graus" />
-          <Comando name="Ligar 19 graus" />
-          <Comando name="Ligar 18 graus" />
-          <Comando name="Ligar 17 graus" />
-          <Comando name="Ligar 16 graus" />
-          <Comando name="Ligar 15 graus" />
-          <Comando name="Ligar 14 graus" />
-          <Comando name="Ligar 13 graus" />
-          <Comando name="Ligar 12 graus" />
           <div className="actions">
             <MDButton
               className="button"
@@ -204,6 +285,12 @@ function AddArForm({
             </MDButton>
           </div>
         </Card>
+        <WaitData
+          message={waitConfig.message}
+          gif={waitConfig.gif}
+          showForm={showWait}
+          setShowForm={setShowWait}
+        />
       </DialogContent>
     </Dialog>
   );
