@@ -37,11 +37,44 @@ import authorsTableData from "layouts/tables/data/authorsTableData";
 import projectsTableData from "layouts/formAr/data/projectsTableData";
 import AddArForm from "layouts/formAr/forms/AddArForm";
 
+import getApiAddress from "serverAddress";
+
 function Tables() {
   const [exibirArAdd, setExibirArAdd] = useState(false);
+  const [update, setUpdate] = useState(false);
+  const [marcasModelos, setMarcasModelos] = useState([]);
+
+  const mm = [
+    { marca: "hitachi", modelo: "modelo 1" },
+    { marca: "hitachi", modelo: "modelo 2" },
+    { marca: "Midea", modelo: "modelo 1" },
+  ];
+
+  useEffect(() => {
+    const api = getApiAddress();
+    fetch(api.database + "/modelos-marcas", {
+      method: "GET",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+        // Authorization: "Bearer " + authData.tokenLocal,
+      },
+    })
+      .then((res) => {
+        // errorHandlingConnection(authData, res);
+        return res.json();
+      })
+      .then((json) => {
+        if (json.status == "ok") {
+          setMarcasModelos(json.dados);
+        } else {
+          //setcomandos
+        }
+        // setComandos(json.dados);
+      });
+  }, [update]);
 
   // const { columns, rows } = authorsTableData();
-  const { columns: pColumns, rows: pRows } = projectsTableData();
+  const { columns: pColumns, rows: pRows } = projectsTableData(marcasModelos);
 
   const addAr = (event) => {
     console.log("passei aqui");
@@ -53,33 +86,6 @@ function Tables() {
       <DashboardNavbar />
       <MDBox pt={6} pb={3}>
         <Grid container spacing={6}>
-          {/* <Grid item xs={12}>
-            <Card>
-              <MDBox
-                mx={2}
-                mt={-3}
-                py={3}
-                px={2}
-                variant="gradient"
-                bgColor="info"
-                borderRadius="lg"
-                coloredShadow="info"
-              >
-                <MDTypography variant="h6" color="white">
-                  Salas
-                </MDTypography>
-              </MDBox>
-              <MDBox pt={3}>
-                <DataTable
-                  table={{ columns, rows }}
-                  isSorted={false}
-                  entriesPerPage={false}
-                  showTotalEntries={false}
-                  noEndBorder
-                />
-              </MDBox>
-            </Card>
-          </Grid> */}
           <Grid item xs={12}>
             <Card>
               <MDBox

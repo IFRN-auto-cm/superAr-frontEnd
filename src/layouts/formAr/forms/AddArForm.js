@@ -125,7 +125,7 @@ function AddArForm({
     { index: 16, valor: "", nome: "Ligar 16º" },
   ];
 
-  const [cmds, setCmds] = useState(comandos);
+  const [cmds, setCmds] = useState([]);
 
   const [inputMarca, setInputMarca] = useState(defaultValue.marca);
   const [inputModelo, setInputModelo] = useState(defaultValue.modelo);
@@ -135,6 +135,26 @@ function AddArForm({
     message: "Esperando comando infravermelho",
     gif: "wait",
   });
+
+  useEffect(() => {
+    const api = getApiAddress();
+    // if (showForm == true) {
+    fetch(api.database + "/comandos", {
+      method: "GET",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+        // Authorization: "Bearer " + authData.tokenLocal,
+      },
+    })
+      .then((res) => {
+        // errorHandlingConnection(authData, res);
+        return res.json();
+      })
+      .then((json) => {
+        setCmds(json.dados);
+      });
+    // }
+  }, [update]);
 
   const handleBotao = (comandoIndex) => {
     console.log("Comando index: " + comandoIndex);
@@ -179,6 +199,30 @@ function AddArForm({
   };
   const handleModelo = (event) => {
     setInputModelo(event.target.value);
+  };
+
+  const handleSendData = (event) => {
+    const api = getApiAddress();
+    fetch(api.database + "/modelos-marcas", {
+      method: "POST",
+      headers: { "Content-type": "application/json; charset=UTF-8" },
+      body: JSON.stringify({ marca: inputMarca, modelo: inputModelo }),
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        console.log(json);
+        if (json["status"] === "ok") {
+          setUpdate(!update);
+          setShowWait(false);
+          setShowForm(false);
+          // alert("comando adquirido");
+        } else {
+          setShowWait(true);
+          setWaitConfig({ message: "Erro: " + json["mensagem"], gif: "erro" });
+          // alert("erro:" + json["status"]);
+        }
+      })
+      .catch((err) => console.log(err));
   };
 
   const Comando = ({ name, identificadorComando }) => {
@@ -266,18 +310,15 @@ function AddArForm({
           <div className="actions">
             <MDButton
               className="button"
-              onClick={() => {
-                const data = {
-                  marca: inputMarca,
-                  modelo: inputModelo,
-                };
+              onClick={(e) => {
+                handleSendData(e);
               }}
             >
               atualizar
             </MDButton>
             <MDButton
               className="button"
-              onClick={() => {
+              onClick={(e) => {
                 setShowForm(false);
               }}
             >

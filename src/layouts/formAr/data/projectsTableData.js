@@ -34,8 +34,9 @@ import logoInvesion from "assets/images/small-logos/logo-invision.svg";
 import iconArOn from "assets/images/arOn.png";
 import iconArOff from "assets/images/arOff.png";
 import LogoAr from "assets/images/logos/arcondicionado.png";
+import MenuFlutuante from "examples/MenuFlutuante/Menu";
 
-export default function data() {
+export default function data(marcasModelos, deleteButton) {
   const Project = ({ image, name }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
       <MDAvatar src={image} name={name} size="sm" variant="rounded" />
@@ -75,112 +76,29 @@ export default function data() {
 
   return {
     columns: [
-      { Header: "Modelo", accessor: "project", width: "30%", align: "left" },
-      { Header: "Temperatura", accessor: "budget", align: "left" },
-      { Header: "Diferença", accessor: "completion", align: "center" },
-      { Header: "status", accessor: "status", align: "center" },
+      { Header: "Marca", accessor: "project", width: "30%", align: "left" },
+      { Header: "Modelo", accessor: "budget", align: "left" },
+      // { Header: "Diferença", accessor: "completion", align: "center" },
+      // { Header: "status", accessor: "status", align: "center" },
       { Header: "Menu", accessor: "action", align: "center" },
     ],
 
-    rows: [
-      {
-        project: <Project image={LogoAr} name="Asana" />,
-        budget: (
-          // <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
-          //   $2,500
-          // </MDTypography>
-          <Temperatura setpoint={30} medicao={29} />
-        ),
-        status: (
-          <MDBox ml={-1}>
-            <img src={iconArOff} alt="logo" width={45} />
-          </MDBox>
-        ),
-        completion: <Progress color="info" value={60} />,
-        action: (
-          <MDTypography component="a" href="#" color="text">
-            <Icon>more_vert</Icon>
-          </MDTypography>
-        ),
-      },
-      {
-        project: <Project image={LogoAr} name="Github" />,
-        budget: <Temperatura setpoint={20} medicao={29} />,
-        status: (
-          <MDBox ml={-1}>
-            <img src={iconArOn} alt="logo" width={45} />
-          </MDBox>
-        ),
-        completion: <Progress color="success" value={100} />,
-        action: (
-          <MDTypography component="a" href="#" color="text">
-            <Icon>more_vert</Icon>
-          </MDTypography>
-        ),
-      },
-      {
-        project: <Project image={LogoAr} name="Atlassian" />,
-        budget: <Temperatura setpoint={18} medicao={20} />,
-        status: (
-          <MDBox ml={-1}>
-            <img src={iconArOn} alt="logo" width={45} />
-          </MDBox>
-        ),
-        completion: <Progress color="error" value={18} />,
-        action: (
-          <MDTypography component="a" href="#" color="text">
-            <Icon>more_vert</Icon>
-          </MDTypography>
-        ),
-      },
-      {
-        project: <Project image={logoSpotify} name="Spotify" />,
-        budget: <Temperatura setpoint={22} medicao={36} />,
-        status: (
-          <MDBox ml={-1}>
-            <img src={iconArOn} alt="logo" width={45} />
-          </MDBox>
-        ),
-        completion: <Progress color="info" value={80} />,
-        action: (
-          <MDTypography component="a" href="#" color="text">
-            <Icon>more_vert</Icon>
-          </MDTypography>
-        ),
-      },
-      {
-        project: <Project image={logoSlack} name="Slack" />,
-        budget: <Temperatura setpoint={23} medicao={23} />,
-        status: (
-          <MDBox ml={-1}>
-            <img src={iconArOff} alt="logo" width={45} />
-          </MDBox>
-        ),
-        completion: <Progress color="error" value={0} />,
-        action: (
-          <MDTypography component="a" href="#" color="text">
-            <Icon>more_vert</Icon>
-          </MDTypography>
-        ),
-      },
-      {
-        project: <Project image={logoInvesion} name="Invesion" />,
-        budget: <Temperatura setpoint={25} medicao={28} />,
-        status: (
-          <MDBox ml={-1}>
-            <img src={iconArOff} alt="logo" width={45} />
-          </MDBox>
-          // <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-          //   done
-          // </MDTypography>
-        ),
-        completion: <Progress color="success" value={100} />,
-        action: (
-          <MDTypography component="a" href="#" color="text">
-            <Icon>more_vert</Icon>
-          </MDTypography>
-        ),
-      },
-    ],
+    rows: marcasModelos.map((mm, index) => ({
+      // {
+      project: <Project image={LogoAr} name={mm.marca} />,
+      budget: (
+        <MDTypography variant="caption" color="text" fontWeight="medium">
+          {mm.modelo}
+        </MDTypography>
+        // <Temperatura setpoint={30} medicao={29} />
+      ),
+      status: (
+        <MDBox ml={-1}>
+          <img src={iconArOff} alt="logo" width={45} />
+        </MDBox>
+      ),
+      completion: <Progress color="info" value={60} />,
+      action: <MenuFlutuante deleteButton={deleteButton} />,
+    })),
   };
 }
