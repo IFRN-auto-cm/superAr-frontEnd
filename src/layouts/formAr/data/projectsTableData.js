@@ -36,7 +36,7 @@ import iconArOff from "assets/images/arOff.png";
 import LogoAr from "assets/images/logos/arcondicionado.png";
 import MenuFlutuante from "examples/MenuFlutuante/Menu";
 
-export default function data(marcasModelos, deleteButton) {
+export default function data(marcasModelos, deleteButton, editButton) {
   const Project = ({ image, name }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
       <MDAvatar src={image} name={name} size="sm" variant="rounded" />
@@ -98,7 +98,12 @@ export default function data(marcasModelos, deleteButton) {
         </MDBox>
       ),
       completion: <Progress color="info" value={60} />,
-      action: <MenuFlutuante deleteButton={deleteButton} />,
+      action: (
+        <MenuFlutuante
+          deleteButton={() => deleteButton(index)}
+          editButton={() => editButton(index)}
+        />
+      ),
     })),
   };
 }

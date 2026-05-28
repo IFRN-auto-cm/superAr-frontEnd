@@ -99,27 +99,8 @@ WaitData.propTypes = {
   setShowForm: PropTypes.func.isRequired, // obrigatório e precisa ser função
 };
 
-function AddArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUpdate }) {
-  const comandos = [
-    { index: 1, valor: "", nome: "Desligar" },
-    { index: 2, valor: "", nome: "Ligar 30º" },
-    { index: 3, valor: "", nome: "Ligar 29º" },
-    { index: 4, valor: "", nome: "Ligar 28º" },
-    { index: 5, valor: "", nome: "Ligar 27º" },
-    { index: 6, valor: "", nome: "Ligar 26º" },
-    { index: 7, valor: "", nome: "Ligar 25º" },
-    { index: 8, valor: "", nome: "Ligar 24º" },
-    { index: 9, valor: "", nome: "Ligar 23º" },
-    { index: 10, valor: "", nome: "Ligar 22º" },
-    { index: 11, valor: "", nome: "Ligar 21º" },
-    { index: 12, valor: "", nome: "Ligar 20º" },
-    { index: 13, valor: "", nome: "Ligar 19º" },
-    { index: 14, valor: "", nome: "Ligar 18º" },
-    { index: 15, valor: "", nome: "Ligar 17º" },
-    { index: 16, valor: "", nome: "Ligar 16º" },
-  ];
-
-  const [cmds, setCmds] = useState([]);
+function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUpdate }) {
+  const [cmds, setCmds] = useState(defaultValue.comandos);
   const [cmdsModificados, setCmdsModificados] = useState([]);
 
   const [inputMarca, setInputMarca] = useState(defaultValue.marca);
@@ -134,23 +115,21 @@ function AddArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUpd
   console.log(defaultValue);
 
   useEffect(() => {
-    const api = getApiAddress();
-    // if (showForm == true) {
-    fetch(api.database + "/comandos", {
-      method: "GET",
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-        // Authorization: "Bearer " + authData.tokenLocal,
-      },
-    })
-      .then((res) => {
-        // errorHandlingConnection(authData, res);
-        return res.json();
-      })
-      .then((json) => {
-        setCmds(json.dados);
-      });
-    // }
+    // const api = getApiAddress();
+    // fetch(api.database + "/comandos", {
+    //   method: "GET",
+    //   headers: {
+    //     "Content-type": "application/json; charset=UTF-8",
+    //     // Authorization: "Bearer " + authData.tokenLocal,
+    //   },
+    // })
+    //   .then((res) => {
+    //     // errorHandlingConnection(authData, res);
+    //     return res.json();
+    //   })
+    //   .then((json) => {
+    //     setCmds(json.dados);
+    //   });
   }, [update]);
 
   const handleBotao = (comandoIndex) => {
@@ -310,7 +289,7 @@ function AddArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUpd
       fullWidth
       maxWidth="sm"
     >
-      <DialogTitle>Adicionar novo modelo de ar</DialogTitle>
+      <DialogTitle>Editar o modelo de ar</DialogTitle>
       <DialogContent dividers>
         <Card>
           <MDInput
@@ -369,7 +348,7 @@ function AddArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUpd
 }
 
 // Setting default values for the props of DefaultInfoCard
-AddArForm.defaultProps = {
+EditArForm.defaultProps = {
   identificadorUsuario: "",
   defaultValue: {
     marca: "",
@@ -378,7 +357,7 @@ AddArForm.defaultProps = {
 };
 
 // Typechecking props for the DefaultInfoCard
-AddArForm.propTypes = {
+EditArForm.propTypes = {
   identificadorUsuario: PropTypes.string,
   defaultValue: {
     marca: PropTypes.string,
@@ -396,4 +375,4 @@ AddArForm.propTypes = {
   setIsToUpdate: PropTypes.func.isRequired,
 };
 
-export default AddArForm;
+export default EditArForm;

@@ -6,7 +6,7 @@ import MenuItem from "@mui/material/MenuItem";
 import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
-function MenuFlutuante({ index, deleteButton }) {
+function MenuFlutuante({ index, deleteButton, editButton }) {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const open = Boolean(anchorEl);
@@ -28,6 +28,7 @@ function MenuFlutuante({ index, deleteButton }) {
       <Menu anchorEl={anchorEl} open={open} onClose={fecharMenu}>
         <MenuItem
           onClick={() => {
+            editButton(index);
             fecharMenu();
           }}
         >
@@ -51,7 +52,7 @@ MenuFlutuante.propTypes = {
   index: PropTypes.number.isRequired,
   //   showForm: PropTypes.bool.isRequired, // obrigatório e precisa ser string
   deleteButton: PropTypes.func.isRequired, // obrigatório e precisa ser função
-  // editButton: PropTypes.func.isRequired, // obrigatório e precisa ser função
+  editButton: PropTypes.func.isRequired, // obrigatório e precisa ser função
   // detailButton: PropTypes.func.isRequired, // obrigatório e precisa ser função
 };
 

@@ -36,13 +36,22 @@ import React, { useMemo, useState, useEffect } from "react";
 import authorsTableData from "layouts/tables/data/authorsTableData";
 import projectsTableData from "layouts/formAr/data/projectsTableData";
 import AddArForm from "layouts/formAr/forms/AddArForm";
+import EditArFor from "layouts/formAr/forms/EditArForm";
 
 import getApiAddress from "serverAddress";
+import { valueOrDefault } from "chart.js/helpers";
 
 function Tables() {
+  const marcaModeloDefault = {
+    marca: "",
+    modelo: "",
+    comandos: [],
+  };
   const [exibirArAdd, setExibirArAdd] = useState(false);
+  const [exibirArEdit, setExibirArEdit] = useState(false);
   const [update, setUpdate] = useState(false);
   const [marcasModelos, setMarcasModelos] = useState([]);
+  const [marcaModelo_comando, setMarcaModelo_comando] = useState(marcaModeloDefault);
 
   const mm = [
     { marca: "hitachi", modelo: "modelo 1" },
@@ -73,11 +82,73 @@ function Tables() {
       });
   }, [update]);
 
+  const handleDelete = (index) => {
+    console.log("delete da tabela marcamodelo");
+    const id = marcasModelos[index].id;
+
+    const api = getApiAddress();
+    fetch(api.database + "/modelos-marcas/" + id, {
+      method: "DELETE",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+        // Authorization: "Bearer " + authData.tokenLocal,
+      },
+    })
+      .then((res) => {
+        // errorHandlingConnection(authData, res);
+        return res.json();
+      })
+      .then((json) => {
+        if (json.status == "ok") {
+          setUpdate(!update);
+          // setMarcasModelos(json.dados);
+        } else {
+          //setcomandos
+        }
+      });
+  };
+
+  const handleEdit = (index) => {
+    console.log("Edit");
+    const id = marcasModelos[index].id;
+    const api = getApiAddress();
+    fetch(api.database + "/edite-modelos-marcas/" + id, {
+      method: "GET",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+        // Authorization: "Bearer " + authData.tokenLocal,
+      },
+    })
+      .then((res) => {
+        // errorHandlingConnection(authData, res);
+        return res.json();
+      })
+      .then((json) => {
+        if (json.status == "ok") {
+          console.log(json.marcaModelo);
+          console.log(json.comandos);
+          const marca = json.marcaModelo.marca;
+          const modelo = json.marcaModelo.modelo;
+          let valueDefault = { marca: marca, modelo: modelo, comandos: json.comandos };
+          setMarcaModelo_comando(valueDefault);
+
+          setExibirArEdit(true);
+          // setMarcasModelos(json.dados);
+        } else {
+          //setcomandos
+        }
+      });
+  };
+
   // const { columns, rows } = authorsTableData();
-  const { columns: pColumns, rows: pRows } = projectsTableData(marcasModelos);
+  const { columns: pColumns, rows: pRows } = projectsTableData(
+    marcasModelos,
+    handleDelete,
+    handleEdit
+  );
 
   const addAr = (event) => {
-    console.log("passei aqui");
+    setMarcaModelo_comando(marcaModeloDefault);
     setExibirArAdd(true);
   };
 
@@ -120,11 +191,18 @@ function Tables() {
       </MDBox>
       <AddArForm
         // identificadorUsuario={identUsuarioEditar}
-        // defaultValue={dadosUsuarioEditar}
+        defaultValue={marcaModeloDefault}
         showForm={exibirArAdd}
         setShowForm={setExibirArAdd}
-        // isToUpdate={isToUpdateUsers}
-        // setIsToUpdate={setIsToUpdateUsers}
+        isToUpdate={update}
+        setIsToUpdate={setUpdate}
+      />
+      <EditArFor
+        defaultValue={marcaModelo_comando}
+        showForm={exibirArEdit}
+        setShowForm={setExibirArEdit}
+        isToUpdate={update}
+        setIsToUpdate={setUpdate}
       />
       <Footer />
     </DashboardLayout>
