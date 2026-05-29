@@ -40,6 +40,7 @@ import Dashboard from "layouts/dashboard";
 import Tables from "layouts/tables";
 import Forms from "layouts/formAr";
 import Commands from "layouts/commands";
+import ArCondicionado from "layouts/ArCondicionado";
 import Billing from "layouts/billing";
 import RTL from "layouts/rtl";
 import Notifications from "layouts/notifications";
@@ -58,6 +59,14 @@ const routes = [
     icon: <Icon fontSize="small">dashboard</Icon>,
     route: "/dashboard",
     component: <Dashboard />,
+  },
+  {
+    type: "collapse",
+    name: "Ares Condicionados",
+    key: "ar_condicionado",
+    icon: <Icon fontSize="small">table_view</Icon>,
+    route: "/ar_condicionado",
+    component: <ArCondicionado />,
   },
   {
     type: "collapse",
