@@ -14,7 +14,7 @@ import Card from "@mui/material/Card";
 
 import getApiAddress from "serverAddress";
 import DataTable from "examples/Tables/DataTable";
-import commandsTableData from "layouts/formAr/data/commadsTableData";
+import commandsTableDataEdit from "layouts/formAr/data/commadsTableDateEdit";
 import CircularProgress from "@mui/material/CircularProgress";
 // import ErrorOutlineIcon from "@mui/material/icons/ErrorOutline";
 import ReportGmailerrorredIcon from "@mui/icons-material/ReportGmailerrorred";
@@ -100,7 +100,8 @@ WaitData.propTypes = {
 };
 
 function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUpdate }) {
-  const [cmds, setCmds] = useState(defaultValue.comandos);
+  const defaultCmds = defaultValue.comandos;
+  const [cmds, setCmds] = useState([]);
   const [cmdsModificados, setCmdsModificados] = useState([]);
 
   const [inputMarca, setInputMarca] = useState(defaultValue.marca);
@@ -112,9 +113,24 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
     gif: "wait",
   });
 
-  console.log(defaultValue);
+  useEffect(() => {
+    let c = [];
+    let temp;
+    defaultCmds.forEach((comando) => {
+      temp = {
+        cadastrado: comando.cadastrado_no_modelo,
+        precisaAtualizar: false,
+        nome: comando.comando_nome,
+        id: comando.comando_id,
+      };
+      c.push(temp);
+    });
+
+    setCmds(c);
+  }, [defaultCmds]);
 
   useEffect(() => {
+    // setCmds(defaultCmds);
     // const api = getApiAddress();
     // fetch(api.database + "/comandos", {
     //   method: "GET",
@@ -150,6 +166,7 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
           let c = cmds;
           let comandos_modificados = cmdsModificados;
           c[comandoIndex].valor = json["comando"];
+          c[comandoIndex].precisaAtualizar = true;
           comandos_modificados.push(c[comandoIndex]);
           console.log(comandos_modificados);
           setCmds(c);
@@ -166,12 +183,7 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
       .catch((err) => console.log(err));
   };
 
-  const { columns: cColumns, rows: cRows } = commandsTableData(cmds, handleBotao);
-
-  // useEffect(() => {
-  //   setInputMarca(defaultValue?.marca ?? "");
-  //   setInputModelo(defaultValue?.modelo ?? "");
-  // }, [identificadorUsuario]);
+  const { columns: cColumns, rows: cRows } = commandsTableDataEdit(cmds, handleBotao);
 
   const handleMarca = (event) => {
     setInputMarca(event.target.value);
@@ -207,30 +219,36 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
   };
 
   const handleSendData = (event) => {
+    const data = {
+      marcaValue: inputMarca == "" ? defaultValue.marca : inputMarca,
+      modeloValue: inputModelo == "" ? defaultValue.modelo : inputModelo,
+      mmId: defaultValue.mm_id,
+      comandos: cmdsModificados,
+    };
     const api = getApiAddress();
-    fetch(api.database + "/modelos-marcas", {
+    fetch(api.database + "/updateModelosComando", {
       method: "POST",
       headers: { "Content-type": "application/json; charset=UTF-8" },
-      body: JSON.stringify({ marca: inputMarca, modelo: inputModelo }),
+      body: JSON.stringify(data),
     })
       .then((response) => response.json())
       .then((json) => {
         console.log(json);
-        if (json["status"] === "ok") {
-          console.log(cmdsModificados.length);
-          if (cmdsModificados.length > 0) {
-            setMarcaModeloComandos(json["id"], cmdsModificados);
-          } else {
-            setIsToUpdate(!isToUpdate);
-            setShowWait(false);
-            setShowForm(false);
-            // alert("comando adquirido");
-          }
-        } else {
-          setShowWait(true);
-          setWaitConfig({ message: "Erro: " + json["mensagem"], gif: "erro" });
-          // alert("erro:" + json["status"]);
-        }
+        // if (json["status"] === "ok") {
+        //   console.log(cmdsModificados.length);
+        //   if (cmdsModificados.length > 0) {
+        //     setMarcaModeloComandos(json["id"], cmdsModificados);
+        //   } else {
+        //     setIsToUpdate(!isToUpdate);
+        //     setShowWait(false);
+        //     setShowForm(false);
+        //     // alert("comando adquirido");
+        //   }
+        // } else {
+        //   setShowWait(true);
+        //   setWaitConfig({ message: "Erro: " + json["mensagem"], gif: "erro" });
+        //   // alert("erro:" + json["status"]);
+        // }
       })
       .catch((err) => console.log(err));
   };

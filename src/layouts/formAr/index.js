@@ -129,7 +129,7 @@ function Tables() {
           console.log(json.comandos);
           const marca = json.marcaModelo.marca;
           const modelo = json.marcaModelo.modelo;
-          let valueDefault = { marca: marca, modelo: modelo, comandos: json.comandos };
+          let valueDefault = { marca: marca, modelo: modelo, comandos: json.comandos, mm_id: id };
           setMarcaModelo_comando(valueDefault);
 
           setExibirArEdit(true);
