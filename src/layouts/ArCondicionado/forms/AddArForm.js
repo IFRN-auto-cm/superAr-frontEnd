@@ -4,7 +4,7 @@ import MDButton from "components/MDButton";
 import MDInput from "components/MDInput";
 import MDTypography from "components/MDTypography";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { Dialog, DialogTitle, DialogContent } from "@mui/material";
 
 // import Popup from "reactjs-popup";
@@ -20,6 +20,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import ReportGmailerrorredIcon from "@mui/icons-material/ReportGmailerrorred";
 import Box from "@mui/material/Box";
 import MySelect from "examples/MySelect";
+import NumericField from "components/MyNumericField";
 
 // import Alert from "@mui/material/Alert";
 // import AlertTitle from "@mui/material/AlertTitle";
@@ -101,139 +102,106 @@ WaitData.propTypes = {
 };
 
 function AddArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUpdate }) {
-  const [cmds, setCmds] = useState([]);
-  const [cmdsModificados, setCmdsModificados] = useState([]);
+  const [marcasModelos, setMarcasModelos] = useState([]);
+  const [salas, setSalas] = useState([]);
 
   const [inputNome, setInputNome] = useState("");
-  const [inputModelo, setInputModelo] = useState("");
+  const [inputAtuador, setInputAtuador] = useState("");
+  const [idMarcaModelo, setIdMarcaModelo] = useState("");
+  const [idSala, setIdSala] = useState("");
+  const [temperatura, setTemperatura] = useState(25);
+  // const [] = useState("");
   const [update, setUpdate] = useState(true);
   const [showWait, setShowWait] = useState(false);
   const [waitConfig, setWaitConfig] = useState({
-    message: "Esperando comando infravermelho",
+    message: "Esperando retorno do banco",
     gif: "wait",
   });
 
-  // console.log(defaultValue);
+  let itemS = [];
+  salas.forEach((sala) => {
+    const nome = sala.codigo + " - " + sala.nome;
+    itemS.push({ nome: nome, id: sala.id });
+  });
 
-  const itemsSalas = [
-    { nome: "A208: Lab. de robótica", id: 0 },
-    { nome: " 212: Lab. de estudo de info", id: 1 },
-  ];
+  const itemsSalas = itemS;
 
-  const itemsMarcaModelo = [
-    { nome: "Hitachi, modelo AirHome 600", id: 0 },
-    { nome: "Mideia, modelo AI Ecomaster", id: 1 },
-  ];
+  // const itemsSalas = [
+  //   { nome: "A208: Lab. de robótica", id: 0 },
+  //   { nome: " 212: Lab. de estudo de info", id: 1 },
+  // ];
+
+  let items = [];
+  marcasModelos.forEach((marcaModelo) => {
+    const nome = marcaModelo.marca + ", modelo " + marcaModelo.modelo;
+    items.push({ nome: nome, id: marcaModelo.id });
+  });
+
+  // const itemsMarcaModelo = [
+  //   { nome: "Hitachi, modelo AirHome 600", id: 0 },
+  //   { nome: "Mideia, modelo AI Ecomaster", id: 1 },
+  // ];
+
+  const itemsMarcaModelo = items;
 
   useEffect(() => {
-    // const api = getApiAddress();
-    // // if (showForm == true) {
-    // fetch(api.database + "/comandos", {
-    //   method: "GET",
-    //   headers: {
-    //     "Content-type": "application/json; charset=UTF-8",
-    //     // Authorization: "Bearer " + authData.tokenLocal,
-    //   },
-    // })
-    //   .then((res) => {
-    //     // errorHandlingConnection(authData, res);
-    //     return res.json();
-    //   })
-    //   .then((json) => {
-    //     setCmds(json.dados);
-    //   });
-    // // }
-  }, [update]);
-
-  const handleBotao = (comandoIndex) => {
-    console.log("Comando index: " + comandoIndex);
-
-    // console.log("Tentando adquirir comando");
-    setShowWait(true);
-    setWaitConfig({ message: "Esperando comando infravermelho", gif: "wait" });
     const api = getApiAddress();
-
-    fetch(api.serial + "/readCommand", {
-      method: "GET",
-      headers: { "Content-type": "application/json; charset=UTF-8" },
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        if (json["status"] === "ok") {
-          let c = cmds;
-          let comandos_modificados = cmdsModificados;
-          c[comandoIndex].valor = json["comando"];
-          comandos_modificados.push(c[comandoIndex]);
-          console.log(comandos_modificados);
-          setCmds(c);
-          setCmdsModificados(comandos_modificados);
-          setShowWait(false);
-
-          // alert("comando adquirido");
-        } else {
-          setShowWait(true);
-          setWaitConfig({ message: "Erro: " + json["status"], gif: "erro" });
-          // alert("erro:" + json["status"]);
-        }
+    if (showForm == true) {
+      fetch(api.database + "/getAddFomrArData", {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          // Authorization: "Bearer " + authData.tokenLocal,
+        },
       })
-      .catch((err) => console.log(err));
-  };
-
-  // const { columns: cColumns, rows: cRows } = commandsTableData(cmds, handleBotao);
+        .then((res) => {
+          return res.json();
+        })
+        .then((json) => {
+          console.log(json);
+          setMarcasModelos(json.marcaModelo);
+          setSalas(json.salas);
+        });
+    }
+  }, [update, showForm]);
 
   const handleNome = (event) => {
     setInputNome(event.target.value);
   };
-  const handleModelo = (event) => {
-    setInputModelo(event.target.value);
-  };
 
-  const setMarcaModeloComandos = (id_comandoModelo, vetorCmds) => {
-    const api = getApiAddress();
-    console.log("vetorCmds");
-    console.log(vetorCmds);
-    fetch(api.database + "/modelos-marcas-comandos", {
-      method: "POST",
-      headers: { "Content-type": "application/json; charset=UTF-8" },
-      body: JSON.stringify({ modelo_marcas: id_comandoModelo, comandos: vetorCmds }),
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        console.log(json);
-        if (json["status"] === "ok") {
-          setUpdate(!update);
-          setShowWait(false);
-          setShowForm(false);
-          // alert("comando adquirido");
-        } else {
-          setShowWait(true);
-          setWaitConfig({ message: "Erro: " + json["mensagem"], gif: "erro" });
-          // alert("erro:" + json["status"]);
-        }
-      })
-      .catch((err) => console.log(err));
+  const handleAtuador = (event) => {
+    setInputAtuador(event.target.value);
   };
 
   const handleSendData = (event) => {
     const api = getApiAddress();
-    fetch(api.database + "/modelos-marcas", {
+    const dataToApi = {
+      marcaModeloId: idMarcaModelo,
+      temperatura_referencia: temperatura,
+      sala: idSala,
+      status: "desligado",
+      atuador: inputAtuador,
+      nome: inputNome,
+    };
+    console.log(dataToApi);
+    fetch(api.database + "/ar-cadastrados", {
       method: "POST",
       headers: { "Content-type": "application/json; charset=UTF-8" },
-      body: JSON.stringify({ marca: inputMarca, modelo: inputModelo }),
+      body: JSON.stringify(dataToApi),
     })
       .then((response) => response.json())
       .then((json) => {
         console.log(json);
         if (json["status"] === "ok") {
-          console.log(cmdsModificados.length);
-          if (cmdsModificados.length > 0) {
-            setMarcaModeloComandos(json["id"], cmdsModificados);
-          } else {
-            setIsToUpdate(!isToUpdate);
-            setShowWait(false);
-            setShowForm(false);
-            // alert("comando adquirido");
-          }
+          // console.log(cmdsModificados.length);
+          // if (cmdsModificados.length > 0) {
+          //   // setMarcaModeloComandos(json["id"], cmdsModificados);
+          // } else {
+          //   setIsToUpdate(!isToUpdate);
+          //   setShowWait(false);
+          //   setShowForm(false);
+          //   // alert("comando adquirido");
+          // }
         } else {
           setShowWait(true);
           setWaitConfig({ message: "Erro: " + json["mensagem"], gif: "erro" });
@@ -241,51 +209,6 @@ function AddArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUpd
         }
       })
       .catch((err) => console.log(err));
-  };
-
-  const Comando = ({ name, identificadorComando }) => {
-    const [comando, setComando] = useState("");
-
-    return (
-      <MDBox display="flex" alignItems="center">
-        <MDInput type="text" label={name} value={comando} disabled fullWidth />
-
-        <MDButton
-          variant="contained"
-          onClick={() => {
-            console.log("Tentando adquirir comando");
-
-            const api = getApiAddress();
-
-            fetch(api.serial + "/readCommand", {
-              method: "GET",
-              headers: { "Content-type": "application/json; charset=UTF-8" },
-            })
-              .then((response) => response.json())
-              .then((json) => {
-                if (json["status"] === "ok") {
-                  console.log(json["comando"]);
-
-                  setComando(json["comando"]);
-
-                  alert("comando adquirido");
-                } else {
-                  alert("erro:" + json["status"]);
-                }
-              })
-              .catch((err) => console.log(err));
-          }}
-        >
-          <MDTypography variant="button" fontWeight="regular" color="text">
-            Ler Comando
-          </MDTypography>
-        </MDButton>
-      </MDBox>
-    );
-  };
-  Comando.propTypes = {
-    name: PropTypes.string.isRequired,
-    identificadorComando: PropTypes.string.isRequired,
   };
 
   return (
@@ -309,11 +232,35 @@ function AddArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUpd
             fullWidth
           ></MDInput>
           <MDBox pt={1}></MDBox>
+          <MySelect label="Sala" items={itemsSalas} required setValue={setIdSala} />
           <MDBox pt={1}></MDBox>
-          <MySelect label="Sala" items={itemsSalas} required />
+          <MySelect
+            label="Marca e Modelo"
+            items={itemsMarcaModelo}
+            required
+            setValue={setIdMarcaModelo}
+          />
           <MDBox pt={1}></MDBox>
-          <MySelect label="Marca e Modelo" items={itemsMarcaModelo} required />
+          <MDBox
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            sx={{ width: "60%" }}
+          >
+            {/* <MDTypography sx={{ minWidth: 40, textAlign: "center" }}> Temperatura </MDTypography> */}
+            Temperatura ao ligar:
+            <NumericField defaultValue={25} setExtValue={setTemperatura} />
+          </MDBox>
           <MDBox pt={1}></MDBox>
+          <MDBox pt={1}></MDBox>
+          <MDInput
+            type="text"
+            label="Endereço do atuador"
+            onChange={handleAtuador}
+            defaultValue=""
+            fullWidth
+          ></MDInput>
+
           {/* <MDInput
             type="text"
             label="Marca e modelo"
