@@ -33,8 +33,12 @@ import DataTable from "examples/Tables/DataTable";
 // import authorsTableData from "layouts/tables/data/authorsTableData";
 // import projectsTableData from "layouts/tables/data/projectsTableData";
 import arCondTableData from "layouts/ArCondicionado/data/arCondicionadoTableData";
+import ArAddForm from "layouts/ArCondicionado/forms/AddArForm";
+import { useState } from "react";
 
 function Tables() {
+  const [exibirAddForm, setExibirAddForm] = useState(false);
+
   const condicionadores = [
     {
       sala: "robótica",
@@ -66,8 +70,17 @@ function Tables() {
     },
   ];
 
+  const defaultValue = {
+    salas: ["robotica", "estudo de info"],
+    marcaModelo: [
+      { marca: "hitachi", modelo: "modelo 1" },
+      { marca: "Midea", modelo: "modelo 1" },
+    ],
+  };
+
   const addAr = () => {
     console.log("addAr");
+    setExibirAddForm(true);
   };
 
   const handleDelete = (index) => {
@@ -149,6 +162,11 @@ function Tables() {
           </Grid>
         </Grid>
       </MDBox>
+      <ArAddForm
+        defaultValue={defaultValue}
+        showForm={exibirAddForm}
+        setShowForm={setExibirAddForm}
+      />
       <Footer />
     </DashboardLayout>
   );
