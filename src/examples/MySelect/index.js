@@ -6,11 +6,12 @@ import InputLabel from "@mui/material/InputLabel";
 import MDBox from "components/MDBox";
 import { useState } from "react";
 
-function MySelect({ label, items, required }) {
-  const [age, setAge] = useState("");
+function MySelect({ label, items, required, setValue }) {
+  const [data, setData] = useState("");
 
   const handleChange = (event) => {
-    setAge(event.target.value);
+    setData(event.target.value);
+    setValue(event.target.value);
   };
 
   return (
@@ -20,7 +21,7 @@ function MySelect({ label, items, required }) {
         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
-          value={age}
+          value={data}
           label={label}
           onChange={handleChange}
           fullWidth
@@ -54,9 +55,10 @@ MySelect.defaultProps = {
 
 // Typechecking props for the DefaultInfoCard
 MySelect.propTypes = {
-  label: PropTypes.string,
+  label: PropTypes.string.isRequired,
   required: PropTypes.bool,
   items: PropTypes.arrayOf(),
+  setValue: PropTypes.func,
 };
 
 export default MySelect;
