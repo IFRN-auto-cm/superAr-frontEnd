@@ -38,6 +38,7 @@ import { useState } from "react";
 
 function Tables() {
   const [exibirAddForm, setExibirAddForm] = useState(false);
+  const [update, setUpdate] = useState(false);
 
   const condicionadores = [
     {
@@ -166,6 +167,8 @@ function Tables() {
         defaultValue={defaultValue}
         showForm={exibirAddForm}
         setShowForm={setExibirAddForm}
+        update={update}
+        setUpdate={setUpdate}
       />
       <Footer />
     </DashboardLayout>
