@@ -141,7 +141,7 @@ export default function data(aresCondicionados, deleteButton, editButton) {
       action: (
         <MenuFlutuante
           deleteButton={() => deleteButton(index)}
-          editButton={() => editButton(index)}
+          editButton={() => editButton(mm.id)}
         />
       ),
     })),
