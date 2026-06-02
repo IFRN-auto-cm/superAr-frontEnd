@@ -6,8 +6,8 @@ import InputLabel from "@mui/material/InputLabel";
 import MDBox from "components/MDBox";
 import { useState } from "react";
 
-function MySelect({ label, items, required, setValue }) {
-  const [data, setData] = useState("");
+function MySelect({ label, items, defaultValue, required, setValue }) {
+  const [data, setData] = useState(defaultValue);
 
   const handleChange = (event) => {
     setData(event.target.value);
@@ -57,6 +57,7 @@ MySelect.defaultProps = {
 MySelect.propTypes = {
   label: PropTypes.string.isRequired,
   required: PropTypes.bool,
+  defaultValue: PropTypes.number,
   items: PropTypes.arrayOf(),
   setValue: PropTypes.func,
 };
