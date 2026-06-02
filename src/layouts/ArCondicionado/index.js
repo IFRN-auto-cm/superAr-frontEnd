@@ -34,42 +34,84 @@ import DataTable from "examples/Tables/DataTable";
 // import projectsTableData from "layouts/tables/data/projectsTableData";
 import arCondTableData from "layouts/ArCondicionado/data/arCondicionadoTableData";
 import ArAddForm from "layouts/ArCondicionado/forms/AddArForm";
-import { useState } from "react";
+import ArEditForm from "layouts/ArCondicionado/forms/EditArForm";
+import { useState, useEffect } from "react";
+import getApiAddress from "serverAddress";
 
 function Tables() {
   const [exibirAddForm, setExibirAddForm] = useState(false);
+  const [exibirEditForm, setExibirEditForm] = useState(false);
+  const [idEdit, setIdEdit] = useState();
   const [update, setUpdate] = useState(false);
+  const [condicionadoresAr, setCondicionadoresAr] = useState([]);
 
-  const condicionadores = [
-    {
-      sala: "robótica",
-      temperatura: { referencia: 20, medicao: 23 },
-      status: "ligado",
-      marca: "Hitachi",
-      modelo: "AirHome 600 Inverter",
-    },
-    {
-      sala: "TI",
-      temperatura: { referencia: 17, medicao: 20 },
-      status: "ligado",
-      marca: "Midea",
-      modelo: "modelo 1",
-    },
-    {
-      sala: "Lab. maker",
-      temperatura: { referencia: 15, medicao: 25 },
-      status: "desligado",
-      marca: "Hitachi",
-      modelo: "modelo 1",
-    },
-    {
-      sala: "Estudo de informática",
-      temperatura: { referencia: 15, medicao: 25 },
-      status: "desligado",
-      marca: "Hitachi",
-      modelo: "modelo 1",
-    },
-  ];
+  // const condicionadores = [
+  //   {
+  //     sala: "robótica",
+  //     temperatura: { referencia: 20, medicao: 23 },
+  //     status: "ligado",
+  //     marca: "Hitachi",
+  //     modelo: "AirHome 600 Inverter",
+  //   },
+  //   {
+  //     sala: "TI",
+  //     temperatura: { referencia: 17, medicao: 20 },
+  //     status: "ligado",
+  //     marca: "Midea",
+  //     modelo: "modelo 1",
+  //   },
+  //   {
+  //     sala: "Lab. maker",
+  //     temperatura: { referencia: 15, medicao: 25 },
+  //     status: "desligado",
+  //     marca: "Hitachi",
+  //     modelo: "modelo 1",
+  //   },
+  //   {
+  //     sala: "Estudo de informática",
+  //     temperatura: { referencia: 15, medicao: 25 },
+  //     status: "desligado",
+  //     marca: "Hitachi",
+  //     modelo: "modelo 1",
+  //   },
+  // ];
+
+  const condicionadores = condicionadoresAr;
+
+  useEffect(() => {
+    const api = getApiAddress();
+    fetch(api.database + "/ar-cadastrados", {
+      method: "GET",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+        // Authorization: "Bearer " + authData.tokenLocal,
+      },
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((json) => {
+        if (json.status == "ok") {
+          console.log(json);
+          const dados = json.dados;
+          const ca = [];
+          dados.forEach((arCondicionando) => {
+            ca.push({
+              id: arCondicionando.id,
+              sala: arCondicionando.sala_nome,
+              temperatura: {
+                referencia: arCondicionando.temperatura_referencia,
+                medicao: "",
+              },
+              status: "desligado",
+              marca: arCondicionando.marca,
+              modelo: arCondicionando.modelo,
+            });
+          });
+          setCondicionadoresAr(ca);
+        }
+      });
+  }, [update]);
 
   const defaultValue = {
     salas: ["robotica", "estudo de info"],
@@ -88,8 +130,9 @@ function Tables() {
     console.log("delete");
   };
 
-  const handleEdit = (index) => {
-    console.log("edit");
+  const handleEdit = (id) => {
+    setIdEdit(id);
+    setExibirEditForm(true);
   };
 
   // const { columns, rows } = authorsTableData();
@@ -144,7 +187,7 @@ function Tables() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Ares Condicionados
+                  Condicionadores de Ar
                 </MDTypography>
                 <IconButton onClick={(e) => addAr(e)}>
                   <Icon>add</Icon>
@@ -167,6 +210,13 @@ function Tables() {
         defaultValue={defaultValue}
         showForm={exibirAddForm}
         setShowForm={setExibirAddForm}
+        update={update}
+        setUpdate={setUpdate}
+      />
+      <ArEditForm
+        defaultValue={{ id: idEdit }}
+        showForm={exibirEditForm}
+        setShowForm={setExibirEditForm}
         update={update}
         setUpdate={setUpdate}
       />
