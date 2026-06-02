@@ -62,7 +62,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Ares Condicionados",
+    name: "Condicionadores de Ar",
     key: "ar_condicionado",
     icon: <Icon fontSize="small">table_view</Icon>,
     route: "/ar_condicionado",
