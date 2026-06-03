@@ -37,7 +37,7 @@ import iconArOff from "assets/images/arOff.png";
 import MenuFlutuante from "examples/MenuFlutuante/Menu";
 import IconButton from "@mui/material/IconButton";
 
-export default function data(aresCondicionados, deleteButton, editButton) {
+export default function data(aresCondicionados, deleteButton, editButton, triggerButton) {
   const MarcaModelo = ({ image, sala, modelo }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
       <MDAvatar src={image} name={sala} size="sm" />
@@ -131,7 +131,8 @@ export default function data(aresCondicionados, deleteButton, editButton) {
         // <MDBox ml={-1}>
         <IconButton
           onClick={() => {
-            console.log("Imagem clicada");
+            // console.log("Imagem clicada");
+            triggerButton();
           }}
         >
           <img src={mm.status == "ligado" ? iconArOn : iconArOff} alt="logo" width={45} />

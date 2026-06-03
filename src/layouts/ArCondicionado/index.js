@@ -45,37 +45,6 @@ function Tables() {
   const [update, setUpdate] = useState(false);
   const [condicionadoresAr, setCondicionadoresAr] = useState([]);
 
-  // const condicionadores = [
-  //   {
-  //     sala: "robótica",
-  //     temperatura: { referencia: 20, medicao: 23 },
-  //     status: "ligado",
-  //     marca: "Hitachi",
-  //     modelo: "AirHome 600 Inverter",
-  //   },
-  //   {
-  //     sala: "TI",
-  //     temperatura: { referencia: 17, medicao: 20 },
-  //     status: "ligado",
-  //     marca: "Midea",
-  //     modelo: "modelo 1",
-  //   },
-  //   {
-  //     sala: "Lab. maker",
-  //     temperatura: { referencia: 15, medicao: 25 },
-  //     status: "desligado",
-  //     marca: "Hitachi",
-  //     modelo: "modelo 1",
-  //   },
-  //   {
-  //     sala: "Estudo de informática",
-  //     temperatura: { referencia: 15, medicao: 25 },
-  //     status: "desligado",
-  //     marca: "Hitachi",
-  //     modelo: "modelo 1",
-  //   },
-  // ];
-
   const condicionadores = condicionadoresAr;
 
   useEffect(() => {
@@ -122,7 +91,7 @@ function Tables() {
   };
 
   const addAr = () => {
-    console.log("addAr");
+    // console.log("addAr");
     setExibirAddForm(true);
   };
 
@@ -135,11 +104,16 @@ function Tables() {
     setExibirEditForm(true);
   };
 
+  const handleOnOff = (id) => {
+    console.log("acionar handle");
+  };
+
   // const { columns, rows } = authorsTableData();
   const { columns: aColumns, rows: aRows } = arCondTableData(
     condicionadores,
     handleDelete,
-    handleEdit
+    handleEdit,
+    handleOnOff
   );
 
   return (
@@ -210,15 +184,15 @@ function Tables() {
         defaultValue={defaultValue}
         showForm={exibirAddForm}
         setShowForm={setExibirAddForm}
-        update={update}
-        setUpdate={setUpdate}
+        isToUpdate={update}
+        setIsToUpdate={setUpdate}
       />
       <ArEditForm
         defaultValue={{ id: idEdit }}
         showForm={exibirEditForm}
         setShowForm={setExibirEditForm}
-        update={update}
-        setUpdate={setUpdate}
+        isToUpdate={update}
+        setIsToUpdate={setUpdate}
       />
       <Footer />
     </DashboardLayout>
