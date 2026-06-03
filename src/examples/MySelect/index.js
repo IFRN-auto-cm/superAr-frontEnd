@@ -4,10 +4,14 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import MDBox from "components/MDBox";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function MySelect({ label, items, defaultValue, required, setValue }) {
   const [data, setData] = useState(defaultValue);
+
+  useEffect(() => {
+    setData(defaultValue);
+  }, [defaultValue]);
 
   const handleChange = (event) => {
     setData(event.target.value);

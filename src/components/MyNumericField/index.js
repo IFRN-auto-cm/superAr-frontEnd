@@ -2,10 +2,14 @@ import PropTypes from "prop-types";
 import { IconButton, TextField, Stack } from "@mui/material";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function NumericField({ defaultValue = 0, setExtValue }) {
   const [value, setValue] = useState(defaultValue);
+
+  useEffect(() => {
+    setValue(defaultValue);
+  }, [defaultValue]);
 
   const handleChange = (e) => {
     setValue(Number(e.target.value));

@@ -41,6 +41,10 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
     nome: "",
     temperatura: 25,
   });
+  const [nomeDefault, setNomeDefault] = useState("");
+  const [salaIdDefault, setSalaIdDefault] = useState();
+  const [marcaModeloDefault, setMarcaModeloDefault] = useState();
+  const [temperaturaDefault, setTemperaturaDefault] = useState(25);
   // const [] = useState("");
   const [update, setUpdate] = useState(true);
   const [showWait, setShowWait] = useState(false);
@@ -52,7 +56,6 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
   useEffect(() => {
     const api = getApiAddress();
     const id = defaultValue.id;
-    console.log(id);
     if (showForm == true) {
       fetch(api.database + "/getEditFomrArData/" + id, {
         method: "GET",
@@ -65,7 +68,6 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
           return res.json();
         })
         .then((json) => {
-          console.log(json.dados);
           const dados = json.dados;
           const s = dados.salas;
           const mm = dados.marcasModelos;
@@ -87,16 +89,18 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
           setSalas(dados.salas);
           setItemsSalas(itemS);
 
-          const dd = {
-            nome: dados.editAr[0].nome_ar,
-            temperatura: dados.editAr[0].temperatura_referencia,
-            salaId: Number(dados.editAr[0].sala_id),
-            marcaModeloId: Number(dados.editAr[0].mm_id),
-          };
-          setDefaultDados(dd);
+          setNomeDefault(dados.editAr[0].nome_ar);
+          setInputNome(dados.editAr[0].nome_ar);
+          setSalaIdDefault(Number(dados.editAr[0].sala_id));
+          setMarcaModeloDefault(Number(dados.editAr[0].mm_id));
+          setIdMarcaModelo(Number(dados.editAr[0].mm_id));
+          setTemperaturaDefault(dados.editAr[0].temperatura_referencia);
+          setTemperatura(dados.editAr[0].temperatura_referencia);
+
+          setIsToUpdate(!isToUpdate);
         });
     }
-  }, [update, showForm]);
+  }, [defaultValue.id, showForm]);
 
   const handleNome = (event) => {
     setInputNome(event.target.value);
@@ -108,6 +112,7 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
 
   const handleSendData = (event) => {
     const api = getApiAddress();
+    const id = defaultValue.id;
     const dataToApi = {
       marcaModeloId: idMarcaModelo,
       temperatura_referencia: temperatura,
@@ -117,7 +122,7 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
       nome: inputNome,
     };
     console.log(dataToApi);
-    fetch(api.database + "/ar-cadastrados", {
+    fetch(api.database + "/ar-cadastrados/" + id, {
       method: "POST",
       headers: { "Content-type": "application/json; charset=UTF-8" },
       body: JSON.stringify(dataToApi),
@@ -126,6 +131,9 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
       .then((json) => {
         console.log(json);
         if (json["status"] === "ok") {
+          setShowWait(false);
+          setShowForm(false);
+          setIsToUpdate(!isToUpdate);
           // console.log(cmdsModificados.length);
           // if (cmdsModificados.length > 0) {
           //   // setMarcaModeloComandos(json["id"], cmdsModificados);
@@ -144,8 +152,6 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
       .catch((err) => console.log(err));
   };
 
-  console.log(defaultDados);
-
   return (
     <Dialog
       open={Boolean(showForm)}
@@ -163,7 +169,8 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
             label="Nome"
             required="true"
             onChange={handleNome}
-            defaultValue={defaultDados.nome}
+            value={inputNome}
+            defaultValue={nomeDefault}
             fullWidth
           ></MDInput>
           <MDBox pt={1}></MDBox>
@@ -172,7 +179,8 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
             items={itemsSalas}
             required
             setValue={setIdSala}
-            defaultValue={defaultDados.salaId}
+            // value={salaIdDefault}
+            defaultValue={salaIdDefault}
           />
           <MDBox pt={1}></MDBox>
           <MySelect
@@ -180,7 +188,7 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
             items={itemsMarcaModelo}
             required
             setValue={setIdMarcaModelo}
-            defaultValue={defaultDados.marcaModeloId}
+            defaultValue={marcaModeloDefault}
           />
           <MDBox pt={1}></MDBox>
           <MDBox
@@ -191,7 +199,7 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
           >
             {/* <MDTypography sx={{ minWidth: 40, textAlign: "center" }}> Temperatura </MDTypography> */}
             Temperatura ao ligar:
-            <NumericField defaultValue={defaultDados.temperatura} setExtValue={setTemperatura} />
+            <NumericField defaultValue={temperaturaDefault} setExtValue={setTemperatura} />
           </MDBox>
           <MDBox pt={1}></MDBox>
           <MDBox pt={1}></MDBox>
