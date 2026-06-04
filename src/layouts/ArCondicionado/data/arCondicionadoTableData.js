@@ -23,6 +23,7 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDAvatar from "components/MDAvatar";
 import MDProgress from "components/MDProgress";
+import Tooltip from "@mui/material/Tooltip";
 
 // Images
 import LogoAr from "assets/images/logos/arcondicionado.png";
@@ -34,6 +35,7 @@ import logoSpotify from "assets/images/small-logos/logo-spotify.svg";
 import logoInvesion from "assets/images/small-logos/logo-invision.svg";
 import iconArOn from "assets/images/arOn.png";
 import iconArOff from "assets/images/arOff.png";
+import iconArLock from "assets/images/arlock.png";
 import MenuFlutuante from "examples/MenuFlutuante/Menu";
 import IconButton from "@mui/material/IconButton";
 
@@ -52,7 +54,7 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
 
   const Author = ({ image, name, email }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
-      {/* <MDAvatar src={image} name={name} size="sm" /> */}
+      <MDAvatar src={image} name={name} size="sm" />
       <MDBox lineHeight={1}>
         <MDTypography display="block" variant="button" fontWeight="medium">
           {name}
@@ -107,7 +109,7 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
       </MDBox>
     </MDBox>
   );
-  // console.log(aresCondicionados);
+  console.log(aresCondicionados);
   return {
     columns: [
       { Header: "Sala", accessor: "project", width: "30%", align: "left" },
@@ -127,17 +129,21 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
         // <Author name={mm.marca} email={mm.modelo} />
         <Job title={mm.marca} description={mm.modelo} />
       ),
-      status: (
-        // <MDBox ml={-1}>
-        <IconButton
-          onClick={() => {
-            // console.log("Imagem clicada");
-            triggerButton(mm.id);
-          }}
-        >
-          <img src={mm.status == "ligado" ? iconArOn : iconArOff} alt="logo" width={45} />
-        </IconButton>
-        // </MDBox>
+      status: !mm.atuadorVazio ? (
+        <Tooltip title={"Clique para " + (mm.status == "ligado" ? "desligar" : "ligar")}>
+          <IconButton
+            onClick={() => {
+              // console.log("Imagem clicada");
+              triggerButton(mm.id);
+            }}
+          >
+            <img src={mm.status == "ligado" ? iconArOn : iconArOff} alt="logo" width={45} />
+          </IconButton>
+        </Tooltip>
+      ) : (
+        <Tooltip title="Endereço do atuador está vazio">
+          <img src={iconArLock} alt="logo" width={45} />
+        </Tooltip>
       ),
       action: (
         <MenuFlutuante

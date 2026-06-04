@@ -61,7 +61,7 @@ function Tables() {
       })
       .then((json) => {
         if (json.status == "ok") {
-          console.log(json);
+          // console.log(json);
           const dados = json.dados;
           const ca = [];
           dados.forEach((arCondicionando) => {
@@ -75,6 +75,7 @@ function Tables() {
               status: "desligado",
               marca: arCondicionando.marca,
               modelo: arCondicionando.modelo,
+              atuadorVazio: arCondicionando.atuador == "",
             });
           });
           setCondicionadoresAr(ca);
