@@ -96,6 +96,7 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
           setIdMarcaModelo(Number(dados.editAr[0].mm_id));
           setTemperaturaDefault(dados.editAr[0].temperatura_referencia);
           setTemperatura(dados.editAr[0].temperatura_referencia);
+          setInputAtuador(dados.editAr[0].atuador);
 
           setIsToUpdate(!isToUpdate);
         });
@@ -206,6 +207,7 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
           <MDInput
             type="text"
             label="Endereço do atuador"
+            value={inputAtuador}
             onChange={handleAtuador}
             defaultValue=""
             fullWidth
