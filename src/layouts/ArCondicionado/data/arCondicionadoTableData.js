@@ -107,7 +107,7 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
       </MDBox>
     </MDBox>
   );
-
+  // console.log(aresCondicionados);
   return {
     columns: [
       { Header: "Sala", accessor: "project", width: "30%", align: "left" },
@@ -132,7 +132,7 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
         <IconButton
           onClick={() => {
             // console.log("Imagem clicada");
-            triggerButton();
+            triggerButton(mm.id);
           }}
         >
           <img src={mm.status == "ligado" ? iconArOn : iconArOff} alt="logo" width={45} />

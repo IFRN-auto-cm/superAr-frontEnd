@@ -105,7 +105,27 @@ function Tables() {
   };
 
   const handleOnOff = (id) => {
+    const api = getApiAddress();
     console.log("acionar handle");
+    // console.log(id);
+    fetch(api.database + "/ar-cadastrados/" + id + "/enviar-comando", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+      body: JSON.stringify({
+        comando_id: 1,
+      }),
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((json) => {
+        console.log(json);
+        if (json.status == "ok") {
+          //
+        }
+      });
   };
 
   // const { columns, rows } = authorsTableData();
