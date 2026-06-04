@@ -42,8 +42,6 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
     temperatura: 25,
   });
   const [nomeDefault, setNomeDefault] = useState("");
-  const [salaIdDefault, setSalaIdDefault] = useState();
-  const [marcaModeloDefault, setMarcaModeloDefault] = useState();
   const [temperaturaDefault, setTemperaturaDefault] = useState(25);
   // const [] = useState("");
   const [update, setUpdate] = useState(true);
@@ -86,19 +84,18 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
           setMarcasModelos(dados.marcasModelos);
           setItemsMarcaModelo(itemMm);
 
-          setSalas(dados.salas);
-          setItemsSalas(itemS);
-
           setNomeDefault(dados.editAr[0].nome_ar);
           setInputNome(dados.editAr[0].nome_ar);
-          setSalaIdDefault(Number(dados.editAr[0].sala_id));
-          setMarcaModeloDefault(Number(dados.editAr[0].mm_id));
+          setIdSala(Number(dados.editAr[0].sala_id));
           setIdMarcaModelo(Number(dados.editAr[0].mm_id));
           setTemperaturaDefault(dados.editAr[0].temperatura_referencia);
           setTemperatura(dados.editAr[0].temperatura_referencia);
           setInputAtuador(dados.editAr[0].atuador);
 
-          setIsToUpdate(!isToUpdate);
+          setSalas(dados.salas);
+          setItemsSalas(itemS);
+
+          // setIsToUpdate(!isToUpdate);
         });
     }
   }, [defaultValue.id, showForm]);
@@ -180,8 +177,7 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
             items={itemsSalas}
             required
             setValue={setIdSala}
-            // value={salaIdDefault}
-            defaultValue={salaIdDefault}
+            defaultValue={Number(idSala)}
           />
           <MDBox pt={1}></MDBox>
           <MySelect
@@ -189,7 +185,7 @@ function EditArForm({ defaultValue, showForm, setShowForm, isToUpdate, setIsToUp
             items={itemsMarcaModelo}
             required
             setValue={setIdMarcaModelo}
-            defaultValue={marcaModeloDefault}
+            defaultValue={Number(idMarcaModelo)}
           />
           <MDBox pt={1}></MDBox>
           <MDBox
