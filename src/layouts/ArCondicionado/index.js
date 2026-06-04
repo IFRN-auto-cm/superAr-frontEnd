@@ -68,6 +68,7 @@ function Tables() {
             ca.push({
               id: arCondicionando.id,
               sala: arCondicionando.sala_nome,
+              codigo: arCondicionando.sala_cod,
               temperatura: {
                 referencia: arCondicionando.temperatura_referencia,
                 medicao: "",

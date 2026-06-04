@@ -120,9 +120,9 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
     ],
 
     rows: aresCondicionados.map((mm, index) => ({
-      project: <Project image={LogoAr} name={mm.sala} />,
+      // project: <Project image={LogoAr} name={mm.sala} />,
       // project: <MarcaModelo image={LogoAr} name={mm.sala} modelo={mm.marca} />,
-      // project: <Author image={LogoAr} name={mm.sala} email={mm.marca} />,
+      project: <Author image={LogoAr} name={mm.codigo} email={mm.sala} />,
       budget: <Temperatura setpoint={mm.temperatura.referencia} medicao={mm.temperatura.medicao} />,
       completion: (
         // <Progress color="info" value={mm.temperatura.medicao - mm.temperatura.referencia} />
