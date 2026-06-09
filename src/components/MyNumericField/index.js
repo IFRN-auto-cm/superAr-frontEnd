@@ -5,10 +5,10 @@ import AddIcon from "@mui/icons-material/Add";
 import { useState, useEffect } from "react";
 
 function NumericField({ defaultValue = 0, setExtValue }) {
-  const [value, setValue] = useState(defaultValue);
+  const [value, setValue] = useState(parseInt(defaultValue));
 
   useEffect(() => {
-    setValue(defaultValue);
+    setValue(parseInt(defaultValue));
   }, [defaultValue]);
 
   const handleChange = (e) => {
@@ -19,7 +19,7 @@ function NumericField({ defaultValue = 0, setExtValue }) {
   };
   const handleClickMinus = () => {
     setValue((v) => {
-      const r = Math.max(10, v - 1);
+      const r = Math.max(14, v - 1);
       setExtValue(r);
       return r;
     });
@@ -27,7 +27,7 @@ function NumericField({ defaultValue = 0, setExtValue }) {
 
   const handleClickPlus = () => {
     setValue((v) => {
-      const r = Math.min(35, v + 1);
+      const r = Math.ceil(Math.min(30, v + 1));
       setExtValue(r);
       return r;
     });
@@ -56,6 +56,7 @@ function NumericField({ defaultValue = 0, setExtValue }) {
           style: {
             textAlign: "center",
           },
+          readOnly: true,
         }}
         sx={{
           width: 50,
