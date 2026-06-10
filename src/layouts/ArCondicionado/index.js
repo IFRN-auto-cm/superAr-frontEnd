@@ -106,24 +106,23 @@ function Tables() {
     setExibirEditForm(true);
   };
 
-  const handleOnOff = (id) => {
+  const handleOnOff = (id, state, temperatura) => {
     const api = getApiAddress();
-    console.log("acionar handle");
-    // console.log(id);
+    const cmd = state == "ligado" ? "Desligar" : "ligar " + Math.trunc(temperatura);
+
     fetch(api.database + "/ar-cadastrados/" + id + "/enviar-comando", {
       method: "POST",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
       },
       body: JSON.stringify({
-        comando_id: 1,
+        comando_nome: cmd,
       }),
     })
       .then((res) => {
         return res.json();
       })
       .then((json) => {
-        console.log(json);
         if (json.status == "ok") {
           //
         }

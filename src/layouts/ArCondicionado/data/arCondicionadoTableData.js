@@ -134,7 +134,7 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
           <IconButton
             onClick={() => {
               // console.log("Imagem clicada");
-              triggerButton(mm.id);
+              triggerButton(mm.id, mm.status, mm.temperatura.referencia);
             }}
           >
             <img src={mm.status == "ligado" ? iconArOn : iconArOff} alt="logo" width={45} />
