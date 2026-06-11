@@ -124,7 +124,9 @@ function Tables() {
       })
       .then((json) => {
         if (json.status == "ok") {
-          //
+          alert("comando enviado");
+        } else {
+          alert(json.mensagem);
         }
       });
   };
