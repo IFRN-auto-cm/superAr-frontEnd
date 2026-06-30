@@ -35,7 +35,6 @@ Sistema para monitoramento e controle inteligente de aparelhos de ar-condicionad
 * [Estrutura do Projeto](#estrutura-do-projeto)
 * [Instalação](#instalação)
 * [Execução](#execução-com-docker)
-* [Fluxo de Desenvolvimento](#fluxo-de-desenvolvimento)
 * [Funcionalidades Implementadas](#funcionalidades-implementadas)
 * [Endpoints Consumidos](#endpoints-consumidos)
 * [Roadmap](#roadmap)
@@ -99,8 +98,7 @@ https://github.com/IFRN-auto-cm/superAr-backEnd
 
 * React
 * Material UI
-* Axios
-* Socket.IO
+* Socket.IO (futuro)
 * React Router
 * JavaScript ES6
 * HTML5
@@ -183,24 +181,6 @@ Na pasta principal do projeto onde está o arquivo docker-compose.dev.yml execut
 
 ```bash
 docker compose -f docker-compose.dev.yml up -d
-```
-
----
-
-# Fluxo de Desenvolvimento
-
-Nunca desenvolva diretamente na branch **master**.
-
-Fluxo recomendado:
-
-```text
-master
-   ▲
-   │
-desenvolvimento
-   ▲
-   │
-recurso/*
 ```
 
 ---
