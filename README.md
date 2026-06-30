@@ -1,7 +1,7 @@
 # SuperAr Frontend
 
 <p align="center">
-  <img src="https://github.com/IFRN-auto-cm/docs/blob/main/superAr.png" width="180">
+  <img src="https://github.com/IFRN-auto-cm/docs/blob/main/telas_superAr.png" width="1000">
 </p>
 
 <p align="center">
