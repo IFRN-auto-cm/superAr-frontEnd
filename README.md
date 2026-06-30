@@ -34,14 +34,11 @@ Sistema para monitoramento e controle inteligente de aparelhos de ar-condicionad
 * [Template Utilizado](#template-utilizado)
 * [Estrutura do Projeto](#estrutura-do-projeto)
 * [Instalação](#instalação)
-* [Execução](#execução)
+* [Execução](#execução-com-docker)
 * [Fluxo de Desenvolvimento](#fluxo-de-desenvolvimento)
-* [Boas práticas com Git](#boas-práticas-com-git)
-* [Fluxo utilizando VS Code](#fluxo-utilizando-vs-code)
 * [Funcionalidades Implementadas](#funcionalidades-implementadas)
 * [Endpoints Consumidos](#endpoints-consumidos)
 * [Roadmap](#roadmap)
-* [Contribuição](#contribuição)
 
 ---
 
@@ -178,7 +175,7 @@ git submodule update --init --recursive
 
 ---
 
-# Execução (utilizando Docker)
+# Execução com Docker
 
 Executar o projeto:
 
@@ -205,64 +202,6 @@ desenvolvimento
    │
 recurso/*
 ```
-
----
-
-# Boas práticas com Git
-
-## Criando uma nova funcionalidade
-
-```bash
-git checkout desenvolvimento
-
-git pull origin desenvolvimento
-
-git checkout -b recurso/nome-da-funcionalidade
-```
-
----
-
-## Commit
-
-```bash
-git add .
-
-git commit -m "Implementa cadastro de aparelhos"
-```
-
----
-
-## Publicação
-
-```bash
-git push origin recurso/nome-da-funcionalidade
-```
-
----
-
-## Atualizando sua branch
-
-```bash
-git checkout desenvolvimento
-
-git pull origin desenvolvimento
-
-git checkout recurso/nome-da-funcionalidade
-
-git merge desenvolvimento
-```
-
----
-
-## Finalizando
-
-Após aprovação:
-
-Recurso → Pull Request → desenvolvimento
-
-Quando uma versão estiver estável:
-
-desenvolvimento → Pull Request → master
 
 ---
 
@@ -317,34 +256,6 @@ desenvolvimento → Pull Request → master
 * [ ] Gráficos estatísticos
 * [ ] Controle de permissões
 * [ ] Modo escuro
-* [ ] Testes automatizados
-* [ ] Internacionalização
-
----
-
-# Contribuição
-
-1. Faça um Fork
-
-2. Crie uma branch
-
-```bash
-git checkout -b feature/minha-feature
-```
-
-3. Commit
-
-```bash
-git commit -m "Minha nova funcionalidade"
-```
-
-4. Push
-
-```bash
-git push origin feature/minha-feature
-```
-
-5. Abra um Pull Request.
 
 ---
 
