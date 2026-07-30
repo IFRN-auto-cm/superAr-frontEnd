@@ -61,7 +61,6 @@ function Tables() {
       })
       .then((json) => {
         if (json.status == "ok") {
-          // console.log(json);
           const dados = json.dados;
           const ca = [];
           dados.forEach((arCondicionando) => {
@@ -71,9 +70,9 @@ function Tables() {
               codigo: arCondicionando.sala_cod,
               temperatura: {
                 referencia: arCondicionando.temperatura_referencia,
-                medicao: "",
+                medicao: arCondicionando.temperatura_medida,
               },
-              status: "desligado",
+              status: arCondicionando.status,
               marca: arCondicionando.marca,
               modelo: arCondicionando.modelo,
               atuadorVazio: arCondicionando.atuador == "",
