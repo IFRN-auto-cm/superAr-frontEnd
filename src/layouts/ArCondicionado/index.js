@@ -38,7 +38,11 @@ import ArEditForm from "layouts/ArCondicionado/forms/EditArForm";
 import { useState, useEffect } from "react";
 import getApiAddress from "serverAddress";
 
+import { useSocket } from "context/SocketContext";
+
 function Tables() {
+  const { socket, isConnected, connectionError } = useSocket();
+
   const [exibirAddForm, setExibirAddForm] = useState(false);
   const [exibirEditForm, setExibirEditForm] = useState(false);
   const [idEdit, setIdEdit] = useState();
@@ -82,6 +86,59 @@ function Tables() {
         }
       });
   }, [update]);
+
+  useEffect(() => {
+    function handleMqttMessage(dados) {
+      const api = getApiAddress();
+      console.log("Mensagem recebida:", dados);
+
+      // setUltimaMensagem(dados);
+      fetch(api.database + "/ar-cadastrados", {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          // Authorization: "Bearer " + authData.tokenLocal,
+        },
+      })
+        .then((res) => {
+          return res.json();
+        })
+        .then((json) => {
+          if (json.status == "ok") {
+            const dados = json.dados;
+            const ca = [];
+            dados.forEach((arCondicionando) => {
+              ca.push({
+                id: arCondicionando.id,
+                sala: arCondicionando.sala_nome,
+                codigo: arCondicionando.sala_cod,
+                temperatura: {
+                  referencia: arCondicionando.temperatura_referencia,
+                  medicao: arCondicionando.temperatura_medida,
+                },
+                status: arCondicionando.status,
+                marca: arCondicionando.marca,
+                modelo: arCondicionando.modelo,
+                atuadorVazio: arCondicionando.atuador == "",
+              });
+            });
+            setCondicionadoresAr(ca);
+          }
+        });
+    }
+
+    socket.emit("inscrever_sala", {
+      soketIO_sala_id: "dashboard",
+    });
+    socket.on("status_ar_atualizado", handleMqttMessage);
+
+    return () => {
+      socket.emit("cancelar_sala", {
+        soketIO_sala_id: "dashboard",
+      });
+      socket.off("status_ar_atualizado", handleMqttMessage);
+    };
+  }, [socket]);
 
   const defaultValue = {
     salas: ["robotica", "estudo de info"],
