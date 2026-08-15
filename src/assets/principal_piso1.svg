@@ -1,5 +1,5 @@
-<svg id="svg7182" version="1.1" viewBox="0 0 841.89 595.28" xmlns="http://www.w3.org/2000/svg">
- <g id="g7180" stroke="#000">
+<svg id="svg7182" width="689.35" height="395.39" version="1.1" viewBox="0 0 689.35 395.39" xmlns="http://www.w3.org/2000/svg">
+ <g id="g7180" transform="translate(-64.792,-87.245)" stroke="#000">
   <g fill="none">
    <g stroke-width=".72">
     <path id="path10" d="m70.152 223.87v-16.437"/>
@@ -1764,7 +1764,7 @@
    <path id="path7016" d="m163.14 231.43v85.668" stroke-width=".25"/>
   </g>
  </g>
- <g id="mesanino" fill="none" stroke="#000">
+ <g id="mesanino" transform="translate(-64.792,-87.245)" fill="none" stroke="#000">
   <path id="path12" d="m71.832 223.87v-16.437" stroke-width=".72"/>
   <g stroke-width=".25">
    <path id="path4954" d="m217.73 158.72h-3.957"/>
@@ -1790,7 +1790,7 @@
    <path id="path6994" d="m213.77 180.91v-16.437"/>
   </g>
  </g>
- <g id="sala101" fill="none" stroke="#000">
+ <g id="sala101" transform="translate(-64.792,-87.245)" fill="none" stroke="#000">
   <path id="path6390" d="m583.2 475.59v1.679" stroke-width=".25"/>
   <path id="path6388" d="m596.4 475.59v1.679" stroke-width=".25"/>
   <path id="path6384" d="m583.2 476.56h13.199" stroke-width=".72"/>
@@ -1812,7 +1812,7 @@
    <path id="path6386" d="m583.2 476.31h13.199"/>
   </g>
  </g>
- <g id="sala102" fill="none" stroke="#000">
+ <g id="sala102" transform="translate(-64.792,-87.245)" fill="none" stroke="#000">
   <g stroke-width=".25">
    <path id="path46" d="m597.24 318.77 26.035 64.434"/>
    <path id="path178" d="m623.28 383.21h-64.91"/>
@@ -1834,7 +1834,7 @@
   <path id="path6334" d="m596.4 317.09v1.679" stroke-width=".25"/>
   <path id="path6336" d="m583.2 317.09v1.679" stroke-width=".25"/>
  </g>
- <g id="sala103" fill="none" stroke="#000">
+ <g id="sala103" transform="translate(-64.792,-87.245)" fill="none" stroke="#000">
   <g stroke-width=".25">
    <path id="path84" d="m545.65 475.59h-13.558"/>
    <path id="path86" d="m515.53 475.59h-13.676"/>
@@ -1857,7 +1857,7 @@
    <path id="path2528" d="m515.53 476.31h16.559"/>
   </g>
  </g>
- <g id="sala104" fill="none" stroke="#000">
+ <g id="sala104" transform="translate(-64.792,-87.245)" fill="none" stroke="#000">
   <g stroke-width=".25">
    <path id="path184" d="m534.61 383.21h-92.988"/>
    <path id="path202" d="m545.65 318.77h-13.558"/>
@@ -1879,7 +1879,7 @@
   <path id="path2646" d="m485.54 318.77h-13.797" stroke-width=".25"/>
   <path id="path2656" d="m544.3 373.25c-5.332 0.176-9.567 4.555-9.567 9.894" stroke-width=".72"/>
  </g>
- <g id="sala105" fill="none" stroke="#000">
+ <g id="sala105" transform="translate(-64.792,-87.245)" fill="none" stroke="#000">
   <g stroke-width=".25">
    <path id="path92" d="m439.94 475.59h-10.437"/>
    <path id="path94" d="m413.07 475.59h-16.679"/>
@@ -1902,7 +1902,7 @@
    <path id="path6450" d="m386.07 476.31h16.559"/>
   </g>
  </g>
- <g id="sala106" fill="none" stroke="#000">
+ <g id="sala106" transform="translate(-64.792,-87.245)" fill="none" stroke="#000">
   <g stroke-width=".25">
    <path id="path186" d="m439.94 383.21h-92.988"/>
    <path id="path188" d="m337.12 383.21h-1.082"/>
@@ -1929,7 +1929,7 @@
   <path id="path2662" d="m337.12 373.25h0.359v9.961h-0.359z" stroke-width=".72"/>
   <path id="path2664" d="m347.07 383.15c0-5.339-4.234-9.718-9.566-9.894" stroke-width=".72"/>
  </g>
- <g id="sala107" fill="none" stroke="#000">
+ <g id="sala107" transform="translate(-64.792,-87.245)" fill="none" stroke="#000">
   <g stroke-width=".25">
    <path id="path100" d="m334.36 475.59h-13.675"/>
    <path id="path102" d="m307.36 475.59h-16.558"/>
@@ -1953,7 +1953,7 @@
    <path id="path6438" d="m307.36 476.31h16.559"/>
   </g>
  </g>
- <g id="sala108" fill="none" stroke="#000">
+ <g id="sala108" transform="translate(-64.792,-87.245)" fill="none" stroke="#000">
   <path id="path2728" d="m254.57 317.82h16.438" stroke-width=".72"/>
   <g stroke-width=".25">
    <path id="path156" d="m230.33 383.21v-10.559"/>
@@ -1984,7 +1984,7 @@
    <path id="path2726" d="m254.57 318.18h16.438"/>
   </g>
  </g>
- <g id="sala109" fill="none" stroke="#000">
+ <g id="sala109" transform="translate(-64.792,-87.245)" fill="none" stroke="#000">
   <g stroke-width=".25">
    <path id="path164" d="m230.33 224.11v-10.441"/>
    <path id="path266" d="m307.96 251.1h-36.957"/>
@@ -2014,7 +2014,7 @@
   <path id="path5208" d="m231.41 251.1h-1.082" stroke-width=".25"/>
   <path id="path5258" d="m229.37 235.39v-11.278" stroke-width=".25"/>
  </g>
- <g id="sala110" fill="none" stroke="#000">
+ <g id="sala110" transform="translate(-64.792,-87.245)" fill="none" stroke="#000">
   <path id="path28" d="m233.09 94.285h16.558" stroke-width=".72"/>
   <g stroke-width=".25">
    <path id="path318" d="m323.32 158.72h-92.988"/>
@@ -2037,7 +2037,7 @@
   <path id="path6374" d="m233.09 92.605v1.68" stroke-width=".25"/>
   <path id="path6888" d="m249.65 94.285h3.719" stroke-width=".25"/>
  </g>
- <g id="sala111" fill="none" stroke="#000">
+ <g id="sala111" transform="translate(-64.792,-87.245)" fill="none" stroke="#000">
   <g stroke-width=".25">
    <path id="path276" d="m439.94 186.67h-92.988"/>
    <path id="path354" d="m336.04 251.1v-64.433"/>
@@ -2057,7 +2057,7 @@
   <path id="path2922" d="m337.12 186.67h0.359v9.961h-0.359z" stroke-width=".72"/>
   <path id="path2924" d="m337.51 196.5c5.332-0.176 9.566-4.555 9.566-9.891" stroke-width=".72"/>
  </g>
- <g id="sala112" fill="none" stroke="#000">
+ <g id="sala112" transform="translate(-64.792,-87.245)" fill="none" stroke="#000">
   <g stroke-width=".25">
    <path id="path312" d="m439.94 158.72h-92.988"/>
    <path id="path362" d="m336.04 158.72v-64.43"/>
@@ -2080,7 +2080,7 @@
    <path id="path6360" d="m413.07 93.324h16.438"/>
   </g>
  </g>
- <g id="sala114" fill="none" stroke="#000">
+ <g id="sala114" transform="translate(-64.792,-87.245)" fill="none" stroke="#000">
   <g stroke-width=".25">
    <path id="path310" d="m534.61 158.72h-92.988"/>
    <path id="path366" d="m441.62 158.72v-64.43"/>
@@ -2098,7 +2098,7 @@
    <path id="path3044" d="m518.41 94.285h16.555"/>
   </g>
  </g>
- <g id="sala115" fill="none" stroke="#000">
+ <g id="sala115" transform="translate(-64.792,-87.245)" fill="none" stroke="#000">
   <g stroke-width=".25">
    <path id="path274" d="m534.61 186.67h-92.988"/>
    <path id="path368" d="m545.65 251.1v-64.433"/>
