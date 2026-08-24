@@ -20,7 +20,7 @@ import { useState } from "react";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
-import Drawer from "@mui/material/Drawer";
+import Dialog from "@mui/material/Dialog";
 import IconButton from "@mui/material/IconButton";
 import Divider from "@mui/material/Divider";
 import CloseIcon from "@mui/icons-material/Close";
@@ -68,12 +68,12 @@ function Dashboard() {
               tempC: 27.1,
             },
 
-            sala03: {
+            sala203: {
               acState: ["unmanaged"],
               tempC: null,
             },
 
-            sala04: {
+            sala204: {
               acState: ["on", "on"],
               tempC: 23.4,
             },
@@ -134,22 +134,28 @@ function Dashboard() {
         />
       </MDBox>
 
-      {/* Painel lateral com informações do ar-condicionado */}
-      <Drawer anchor="right" open={painelAberto} onClose={() => setPainelAberto(false)}>
-        <MDBox
-          sx={{
-            width: {
-              xs: 320,
-              sm: 420,
-            },
+      {/* Modal centralizado com informações do ar-condicionado */}
+      <Dialog
+        open={painelAberto}
+        onClose={() => setPainelAberto(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: "16px",
             p: 3,
-          }}
-        >
+            minWidth: { sm: "450px" },
+          },
+        }}
+      >
+        <MDBox sx={{ width: "100%", height: "100%" }}>
           {/* Cabeçalho */}
           <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-            <MDTypography variant="h5">Informações do aparelho</MDTypography>
+            <MDTypography variant="h5" noWrap>
+              Informações do aparelho
+            </MDTypography>
 
-            <IconButton onClick={() => setPainelAberto(false)}>
+            <IconButton onClick={() => setPainelAberto(false)} sx={{ ml: 2 }}>
               <CloseIcon />
             </IconButton>
           </MDBox>
@@ -158,23 +164,23 @@ function Dashboard() {
 
           {/* Informações do aparelho selecionado */}
           {arSelecionado && (
-            <>
-              <MDTypography variant="h6" mb={3}>
+            <MDBox sx={{ maxHeight: "70vh", overflowY: "auto" }}>
+              <MDTypography variant="h6" mb={3} noWrap>
                 Ar-condicionado {arSelecionado.id}
               </MDTypography>
 
-              <MDTypography variant="body2" mb={2}>
+              <MDTypography variant="body2" mb={2} sx={{ whiteSpace: "nowrap" }}>
                 <strong>Sala:</strong> {arSelecionado.id}
               </MDTypography>
 
-              <MDTypography variant="body2" mb={2}>
+              <MDTypography variant="body2" mb={2} sx={{ whiteSpace: "nowrap" }}>
                 <strong>Temperatura:</strong>{" "}
                 {Number.isFinite(arSelecionado.tempC)
                   ? `${arSelecionado.tempC} °C`
                   : "Não informada"}
               </MDTypography>
 
-              <MDTypography variant="body2" mb={2}>
+              <MDTypography variant="body2" mb={2} sx={{ whiteSpace: "nowrap" }}>
                 <strong>Estado:</strong>{" "}
                 {arSelecionado.acState?.includes("on")
                   ? "Ligado"
@@ -185,7 +191,7 @@ function Dashboard() {
 
               <Divider sx={{ my: 3 }} />
 
-              <MDTypography variant="h6" mb={2}>
+              <MDTypography variant="h6" mb={2} noWrap>
                 Status do aparelho
               </MDTypography>
 
@@ -205,6 +211,7 @@ function Dashboard() {
                 <MDTypography
                   variant="h6"
                   color={arSelecionado.acState?.includes("on") ? "success" : "error"}
+                  sx={{ whiteSpace: "nowrap" }}
                 >
                   {arSelecionado.acState?.includes("on")
                     ? "● Aparelho ligado"
@@ -213,10 +220,10 @@ function Dashboard() {
                     : "● Não gerenciado"}
                 </MDTypography>
               </MDBox>
-            </>
+            </MDBox>
           )}
         </MDBox>
-      </Drawer>
+      </Dialog>
 
       <Footer />
     </DashboardLayout>

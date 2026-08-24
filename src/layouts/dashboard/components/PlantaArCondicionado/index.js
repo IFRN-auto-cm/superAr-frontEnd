@@ -286,7 +286,7 @@ export default function PlantaAr({ rooms, onRoomClick, className, style }) {
           position: "relative",
           width: "100%",
           aspectRatio: `${svgRatio.w} / ${svgRatio.h}`,
-          minHeight: { xs: 240, sm: 360 },
+          maxHeight: "calc(100vh - 200px)",
           overflow: "hidden",
         }}
       >
