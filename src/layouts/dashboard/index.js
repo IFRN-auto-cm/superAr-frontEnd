@@ -24,10 +24,14 @@ import Dialog from "@mui/material/Dialog";
 import IconButton from "@mui/material/IconButton";
 import Divider from "@mui/material/Divider";
 import CloseIcon from "@mui/icons-material/Close";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
+import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
+import MDButton from "components/MDButton";
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -49,7 +53,60 @@ function Dashboard() {
   const [arSelecionado, setArSelecionado] = useState(null);
   const [painelAberto, setPainelAberto] = useState(false);
 
+  // Estado centralizado das salas para permitir atualização em tempo real
+  const [rooms, setRooms] = useState({
+    sala09: { acState: ["on"], tempC: 23.4 },
+    sala02: { acState: ["off", "on", "on"], tempC: 27.1 },
+    sala203: { acState: ["unmanaged"], tempC: null },
+    sala204: { acState: ["on", "on"], tempC: 23.4 },
+    sala05: { acState: ["off"], tempC: 27.1 },
+    sala06: { acState: ["on"], tempC: 22.37 },
+    sala07: { acState: ["off"], tempC: 27.1 },
+    sala08: { acState: ["unmanaged"], tempC: null },
+    sala09: { acState: ["on", "on", "off"], tempC: 32.37 },
+    sala17: { acState: ["on"], tempC: 17.8 },
+    sala18: { acState: ["on"], tempC: 17.8 },
+    sala20: { acState: ["on"], tempC: 17.8 },
+    sala23: { acState: ["off"], tempC: 27.1 },
+  });
+
   const { sales, tasks } = reportsLineChartData;
+
+  // Atualiza o estado da sala no objeto centralizado e na seleção atual
+  const updateRoomState = (roomId, newAcState, newTemp) => {
+    setRooms((prev) => {
+      const updated = {
+        ...prev,
+        [roomId]: {
+          ...prev[roomId],
+          ...(newAcState !== undefined && { acState: newAcState }),
+          ...(newTemp !== undefined && { tempC: newTemp }),
+        },
+      };
+
+      if (arSelecionado && arSelecionado.id === roomId) {
+        setArSelecionado({
+          ...arSelecionado,
+          ...updated[roomId],
+        });
+      }
+
+      return updated;
+    });
+  };
+
+  // Funções de controle do ar-condicionado
+  const handleTogglePower = (powerState) => {
+    if (!arSelecionado) return;
+    updateRoomState(arSelecionado.id, [powerState], arSelecionado.tempC ?? 22);
+  };
+
+  const handleAdjustTemp = (delta) => {
+    if (!arSelecionado || arSelecionado.tempC === null) return;
+    const currentTemp = Number(arSelecionado.tempC) || 22;
+    const newTemp = parseFloat((currentTemp + delta).toFixed(1));
+    updateRoomState(arSelecionado.id, arSelecionado.acState, newTemp);
+  };
 
   return (
     <DashboardLayout>
@@ -57,72 +114,7 @@ function Dashboard() {
 
       <MDBox py={3}>
         <PlantaArCondicionado
-          rooms={{
-            sala01: {
-              acState: ["on"],
-              tempC: 23.4,
-            },
-
-            sala02: {
-              acState: ["off", "on", "on"],
-              tempC: 27.1,
-            },
-
-            sala203: {
-              acState: ["unmanaged"],
-              tempC: null,
-            },
-
-            sala204: {
-              acState: ["on", "on"],
-              tempC: 23.4,
-            },
-
-            sala05: {
-              acState: ["off"],
-              tempC: 27.1,
-            },
-
-            sala06: {
-              acState: ["on"],
-              tempC: 22.37,
-            },
-
-            sala07: {
-              acState: ["off"],
-              tempC: 27.1,
-            },
-
-            sala08: {
-              acState: ["unmanaged"],
-              tempC: null,
-            },
-
-            sala09: {
-              acState: ["on", "on", "off"],
-              tempC: 32.37,
-            },
-
-            sala17: {
-              acState: ["on"],
-              tempC: 17.8,
-            },
-
-            sala18: {
-              acState: ["on"],
-              tempC: 17.8,
-            },
-
-            sala20: {
-              acState: ["on"],
-              tempC: 17.8,
-            },
-
-            sala23: {
-              acState: ["off"],
-              tempC: 27.1,
-            },
-          }}
+          rooms={rooms}
           onRoomClick={(id, data) => {
             setArSelecionado({
               id,
@@ -188,6 +180,80 @@ function Dashboard() {
                   ? "Desligado"
                   : "Não gerenciado"}
               </MDTypography>
+
+              {/* Painel de Controles: Ligar/Desligar e Alterar Temperatura */}
+              {!arSelecionado.acState?.includes("unmanaged") && (
+                <>
+                  <Divider sx={{ my: 3 }} />
+
+                  <MDTypography variant="h6" mb={2} noWrap>
+                    Controles
+                  </MDTypography>
+
+                  {/* Botões Ligar / Desligar */}
+                  <MDBox display="flex" gap={2} mb={3}>
+                    <MDButton
+                      variant={arSelecionado.acState?.includes("on") ? "gradient" : "outlined"}
+                      color="success"
+                      fullWidth
+                      startIcon={<PowerSettingsNewIcon />}
+                      onClick={() => handleTogglePower("on")}
+                    >
+                      Ligar
+                    </MDButton>
+                    <MDButton
+                      variant={arSelecionado.acState?.includes("off") ? "gradient" : "outlined"}
+                      color="error"
+                      fullWidth
+                      startIcon={<PowerSettingsNewIcon />}
+                      onClick={() => handleTogglePower("off")}
+                    >
+                      Desligar
+                    </MDButton>
+                  </MDBox>
+
+                  {/* Controle de Temperatura */}
+                  <MDBox
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    p={2}
+                    sx={{
+                      borderRadius: 2,
+                      backgroundColor: "background.default",
+                      border: "1px solid",
+                      borderColor: "divider",
+                    }}
+                  >
+                    <MDTypography variant="button" fontWeight="bold">
+                      Ajustar Temperatura
+                    </MDTypography>
+
+                    <MDBox display="flex" alignItems="center" gap={1}>
+                      <IconButton
+                        color="info"
+                        onClick={() => handleAdjustTemp(-1)}
+                        disabled={arSelecionado.tempC === null}
+                      >
+                        <RemoveIcon />
+                      </IconButton>
+
+                      {/* eslint-disable prettier/prettier */}
+                      <MDTypography variant="h6" sx={{ minWidth: "65px", textAlign: "center" }}>
+                        {Number.isFinite(arSelecionado.tempC) ? `${arSelecionado.tempC}°C` : "--"}
+                      </MDTypography>
+
+                      <IconButton
+                        color="info"
+                        onClick={() => handleAdjustTemp(1)}
+                        disabled={arSelecionado.tempC === null}
+                      >
+                        <AddIcon />
+                      </IconButton>
+                    </MDBox>
+                  </MDBox>
+                </>
+              )}
 
               <Divider sx={{ my: 3 }} />
 
