@@ -88,13 +88,17 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
         <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
           Referência:
         </MDTypography>
-        <MDTypography variant="caption">{setpoint}º</MDTypography>
+        <MDTypography variant="caption">
+          {Number.isFinite(Number(setpoint)) && setpoint != null ? setpoint + "º" : "desconhecido"}
+        </MDTypography>
       </MDBox>
       <MDBox display="flex" gap={2.1} lineHeight={1} textAlign="left">
         <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
           Medição:
         </MDTypography>
-        <MDTypography variant="caption">{medicao}º</MDTypography>
+        <MDTypography variant="caption">
+          {Number.isFinite(Number(medicao)) && medicao != null ? medicao + "º" : "desconhecido"}
+        </MDTypography>
       </MDBox>
     </MDBox>
   );
