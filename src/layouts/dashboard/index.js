@@ -181,7 +181,7 @@ function Dashboard() {
                   : "Não gerenciado"}
               </MDTypography>
 
-              {/* Painel de Controles: Ligar/Desligar e Alterar Temperatura */}
+              {/* Painel de Controles: Alternância Dinâmica do Botão Ligar/Desligar e Alterar Temperatura */}
               {!arSelecionado.acState?.includes("unmanaged") && (
                 <>
                   <Divider sx={{ my: 3 }} />
@@ -190,26 +190,29 @@ function Dashboard() {
                     Controles
                   </MDTypography>
 
-                  {/* Botões Ligar / Desligar */}
-                  <MDBox display="flex" gap={2} mb={3}>
-                    <MDButton
-                      variant={arSelecionado.acState?.includes("on") ? "gradient" : "outlined"}
-                      color="success"
-                      fullWidth
-                      startIcon={<PowerSettingsNewIcon />}
-                      onClick={() => handleTogglePower("on")}
-                    >
-                      Ligar
-                    </MDButton>
-                    <MDButton
-                      variant={arSelecionado.acState?.includes("off") ? "gradient" : "outlined"}
-                      color="error"
-                      fullWidth
-                      startIcon={<PowerSettingsNewIcon />}
-                      onClick={() => handleTogglePower("off")}
-                    >
-                      Desligar
-                    </MDButton>
+                  {/* Botão Dinâmico: Exibe apenas o botão de 'Desligar' se estiver LIGADO, ou 'Ligar' se estiver DESLIGADO */}
+                  <MDBox mb={3}>
+                    {arSelecionado.acState?.includes("on") ? (
+                      <MDButton
+                        variant="gradient"
+                        color="error"
+                        fullWidth
+                        startIcon={<PowerSettingsNewIcon />}
+                        onClick={() => handleTogglePower("off")}
+                      >
+                        Desligar
+                      </MDButton>
+                    ) : (
+                      <MDButton
+                        variant="gradient"
+                        color="success"
+                        fullWidth
+                        startIcon={<PowerSettingsNewIcon />}
+                        onClick={() => handleTogglePower("on")}
+                      >
+                        Ligar
+                      </MDButton>
+                    )}
                   </MDBox>
 
                   {/* Controle de Temperatura */}

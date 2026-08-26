@@ -163,7 +163,7 @@ function Badge({ id, acState, tempC, left, top, onClick }) {
 
 Badge.propTypes = {
   id: PropTypes.string.isRequired,
-  acState: PropTypes.oneOf(["on", "off", "unmanaged"]).isRequired,
+  acState: PropTypes.arrayOf(PropTypes.string).isRequired,
   tempC: PropTypes.number,
   left: PropTypes.string.isRequired,
   top: PropTypes.string.isRequired,
@@ -195,10 +195,8 @@ export default function PlantaAr({ rooms, onRoomClick, className, style }) {
       setSvgRatio({ w: vb.width || 1, h: vb.height || 1 });
     };
 
-    // calcula logo que montar
     updateRatio();
 
-    // recalcula se o wrapper mudar de tamanho (responsivo)
     const ro = new ResizeObserver(() => updateRatio());
     ro.observe(wrapper);
 
@@ -219,7 +217,8 @@ export default function PlantaAr({ rooms, onRoomClick, className, style }) {
       const el = svg.querySelector(`#${CSS.escape(roomId)}`);
       if (!el) return;
 
-      const cfg = AC_COLORS[data.acState] ?? AC_COLORS.unmanaged;
+      const primaryState = data.acState?.[0] ?? "unmanaged";
+      const cfg = AC_COLORS[primaryState] ?? AC_COLORS.unmanaged;
 
       el.style.fill = cfg.fill;
       el.style.cursor = "pointer";
@@ -229,12 +228,12 @@ export default function PlantaAr({ rooms, onRoomClick, className, style }) {
         if (onRoomClick) onRoomClick(roomId, data);
       };
 
-      const overlayEl = wrapper; // o MDBox ref={wrapperRef} ocupa exatamente a mesma caixa do overlay
+      const overlayEl = wrapper;
       const pos = centerPercentFromRects(el, overlayEl);
 
       nextBadges.push({
         id: roomId,
-        acState: data.acState ?? "unmanaged",
+        acState: data.acState ?? ["unmanaged"],
         tempC: data.tempC,
         left: pos.left,
         top: pos.top,
@@ -258,14 +257,14 @@ export default function PlantaAr({ rooms, onRoomClick, className, style }) {
       const nextBadges = [];
 
       roomEntries.forEach(([roomId, data]) => {
-        const el = svgNow.querySelector(`#${CSS.escape(roomId)}`); // ✅ usar svgNow
+        const el = svgNow.querySelector(`#${CSS.escape(roomId)}`);
         if (!el) return;
 
-        const pos = centerPercentFromRects(el, wrapper); // ✅ usa rect real na tela
+        const pos = centerPercentFromRects(el, wrapper);
 
         nextBadges.push({
           id: roomId,
-          acState: data.acState ?? "unmanaged",
+          acState: data.acState ?? ["unmanaged"],
           tempC: data.tempC,
           left: pos.left,
           top: pos.top,
@@ -290,7 +289,6 @@ export default function PlantaAr({ rooms, onRoomClick, className, style }) {
           overflow: "hidden",
         }}
       >
-        {/* ✅ gira SVG em xs */}
         <MDBox
           ref={wrapperRef}
           sx={{
@@ -302,7 +300,6 @@ export default function PlantaAr({ rooms, onRoomClick, className, style }) {
           <PlantaSvg style={{ width: "100%", height: "100%", display: "block" }} />
         </MDBox>
 
-        {/* ✅ gira overlay junto para não desalinhar badges */}
         <MDBox
           sx={{
             position: "absolute",
@@ -321,10 +318,10 @@ export default function PlantaAr({ rooms, onRoomClick, className, style }) {
 }
 
 /* ===============================
-   PROP VALIDATION
+    PROP VALIDATION
 =================================*/
 const roomShape = PropTypes.shape({
-  acState: PropTypes.oneOf(["on", "off", "unmanaged"]).isRequired,
+  acState: PropTypes.arrayOf(PropTypes.string).isRequired,
   tempC: PropTypes.number,
 });
 
