@@ -102,6 +102,14 @@ const routes = [
   //   route: "/billing",
   //   component: <Billing />,
   // },
+  {
+    type: "collapse",
+    name: "Agendamento",
+    key: "agendamento",
+    icon: <Icon>event</Icon>,
+    route: "/Agendamento",
+    component: <agendamento />,
+  },
   // {
   //   type: "collapse",
   //   name: "RTL",
