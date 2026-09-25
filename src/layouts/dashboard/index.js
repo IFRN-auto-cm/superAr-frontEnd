@@ -16,7 +16,7 @@ Coded by www.creative-tim.com
 import { ReactComponent as Planta } from "assets/planta_p1.svg";
 import PlantaArCondicionado from "layouts/dashboard/components/PlantaArCondicionado";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
@@ -49,6 +49,15 @@ import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 import Projects from "layouts/dashboard/components/Projects";
 import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
 
+const sala_map= {
+  A108: "sala08",
+  212: "sala12",
+  A211: "sala21",
+  A111: "sala11",
+  A208: "sala20",
+
+};
+
 function Dashboard() {
   const [arSelecionado, setArSelecionado] = useState(null);
   const [painelAberto, setPainelAberto] = useState(false);
@@ -69,6 +78,48 @@ function Dashboard() {
     sala20: { acState: ["on"], tempC: 17.8 },
     sala23: { acState: ["off"], tempC: 27.1 },
   });
+
+  // Requisitar dados reais da API e atualizar as salas
+  useEffect(() => {
+    fetch("http://localhost:5000/ar-cadastrados")
+      .then((response) => response.json())
+      .then((data) => {
+        const list = Array.isArray(data) ? data : data.dados || [];
+
+        setRooms((prevRooms) => {
+          const updated = { ...prevRooms };
+
+          list.forEach((item) => {
+            const mappedKey = sala_map[item.sala_cod] || `sala${item.sala_cod}`;
+
+            const temp =
+              item.temperatura_medida !== "desconhecido" && item.temperatura_medida != null
+                ? parseFloat(item.temperatura_medida)
+                : item.temperatura_referencia !== "desconhecido" && item.temperatura_referencia != null
+                ? parseFloat(item.temperatura_referencia)
+                : null;
+
+            let acState = ["unmanaged"];
+            const statusLower = item.status?.toString().toLowerCase();
+            if (statusLower === "on" || statusLower === "ligado") {
+              acState = ["on"];
+            } else if (statusLower === "off" || statusLower === "desligado") {
+              acState = ["off"];
+            }
+
+            updated[mappedKey] = {
+              acState,
+              tempC: temp,
+              rawInfo: item,
+            };
+          });
+
+          return updated;
+        });
+      })
+      .catch((error) => console.error("Erro ao procurar aparelhos:", error));
+  }, []);
+
 
   const { sales, tasks } = reportsLineChartData;
 
