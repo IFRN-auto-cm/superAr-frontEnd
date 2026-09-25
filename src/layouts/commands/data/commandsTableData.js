@@ -47,96 +47,65 @@ import PropTypes from "prop-types";
 import Tooltip from "@mui/material/Tooltip";
 
 export default function data(comandos, handleBotaoDelete) {
-  const Project = ({ fanIntensity, name }) => {
+  const Temperatura = ({ valor }) => {
+    return (
+      <MDBox display="flex" gap={2.1} lineHeight={1} textAlign="left">
+        <ThermostatIcon />
+        <MDTypography variant="caption">{valor}º</MDTypography>
+      </MDBox>
+    );
+  };
+
+  const Fan = ({ valor }) => {
     let fanText = "";
 
-    if (name == "Desligar") {
-      return "";
-    }
-
-    if (fanIntensity == 0) {
+    if (valor == 0) {
       fanText = "Baixo";
-    } else if (fanIntensity == 1) {
+    } else if (valor == 1) {
       fanText = "Médio";
-    } else if (fanIntensity == 2) {
+    } else if (valor == 2) {
       fanText = "Alto";
     } else {
       fanText = "Desconhecido";
     }
 
-    const Config = ({ conf }) => {
-      if (conf == 0) {
-        return (
-          <MDBox display="flex" gap={2.1} lineHeight={1} textAlign="left">
-            <AcUnitIcon />
-            <MDTypography variant="caption">Gelar</MDTypography>
-          </MDBox>
-        );
-      } else if (conf == 1) {
-        return (
-          <MDBox display="flex" gap={2.1} lineHeight={1} textAlign="left">
-            <SunHeat />
-            <MDTypography variant="caption">Esquentar</MDTypography>
-          </MDBox>
-        );
-      } else if (conf == 2) {
-        return (
-          <MDBox display="flex" gap={2.1} lineHeight={1} textAlign="left">
-            <DryIcon />
-            <MDTypography variant="caption">Secar</MDTypography>
-          </MDBox>
-        );
-      }
+    return (
+      <Tooltip title="Ajuste de fan">
+        <MDBox display="flex" gap={2.1} lineHeight={1} textAlign="left">
+          <WindIcon />
+          <MDTypography variant="caption">{fanText}</MDTypography>
+        </MDBox>
+      </Tooltip>
+    );
+  };
 
+  const Mode = ({ conf }) => {
+    if (conf == 0) {
       return (
-        <MDBox>
+        <MDBox display="flex" gap={2.1} lineHeight={1} textAlign="left">
           <AcUnitIcon />
+          <MDTypography variant="caption">Gelar</MDTypography>
         </MDBox>
       );
-    };
+    } else if (conf == 1) {
+      return (
+        <MDBox display="flex" gap={2.1} lineHeight={1} textAlign="left">
+          <SunHeat />
+          <MDTypography variant="caption">Esquentar</MDTypography>
+        </MDBox>
+      );
+    } else if (conf == 2) {
+      return (
+        <MDBox display="flex" gap={2.1} lineHeight={1} textAlign="left">
+          <DryIcon />
+          <MDTypography variant="caption">Secar</MDTypography>
+        </MDBox>
+      );
+    }
 
     return (
-      // <MDBox>
-      //   <MDBox display="flex" alignItems="center" lineHeight={1}>
-      //     {/* <MDAvatar src={image} name={name} size="sm" variant="rounded" /> */}
-      //     <ThermostatIcon />
-      //     <MDTypography display="block" variant="button" fontWeight="medium" ml={1} lineHeight={1}>
-      //       {name + "º"}
-      //     </MDTypography>
-      //   </MDBox>
-      //   <MDBox lineHeight={1} />
-      //   <MDBox display="flex" alignItems="center" lineHeight={1}>
-      //     {/* <MDAvatar src={image} name={name} size="sm" variant="rounded" /> */}
-      //     <WindIcon />
-      //     <MDTypography display="block" variant="button" fontWeight="medium" ml={1} lineHeight={1}>
-      //       {fanText}
-      //     </MDTypography>
-      //   </MDBox>
-      // </MDBox>
       <MDBox>
-        <Tooltip title="Ajuste de temperatura">
-          <MDBox display="flex" gap={2.1} lineHeight={1} textAlign="left">
-            <ThermostatIcon />
-            {/* <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
-              <ThermostatIcon />
-            </MDTypography> */}
-            <MDTypography variant="caption">{name}º</MDTypography>
-          </MDBox>
-        </Tooltip>
-        <Tooltip title="Ajuste de fan">
-          <MDBox display="flex" gap={2.1} lineHeight={1} textAlign="left">
-            <WindIcon />
-            {/* <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
-              
-            </MDTypography> */}
-            <MDTypography variant="caption">{fanText}</MDTypography>
-          </MDBox>
-        </Tooltip>
-        <Tooltip title="configuração">
-          <MDBox display="flex" gap={2.1} lineHeight={1} textAlign="left">
-            <Config conf={fanIntensity} />
-          </MDBox>
-        </Tooltip>
+        <AcUnitIcon />
       </MDBox>
     );
   };
@@ -148,7 +117,9 @@ export default function data(comandos, handleBotaoDelete) {
   return {
     columns: [
       { Header: "Comandos", accessor: "project", width: "30%", align: "center" },
-      { Header: "Configuração", accessor: "config", align: "center" },
+      { Header: "temperatura", accessor: "temperatura", align: "left" },
+      { Header: "velocidade ventilador", accessor: "fanVelocity", align: "left" },
+      { Header: "Modo", accessor: "mode", align: "left" },
       { Header: "Editar Comando", accessor: "action", align: "center" },
     ],
     rows: comandos.map((comando, index) => ({
@@ -159,7 +130,9 @@ export default function data(comandos, handleBotaoDelete) {
           </MDTypography>
         </MDBox>
       ),
-      config: <Project fanIntensity={index % 3} name={comando.nome} />,
+      temperatura: comando.nome == "Desligar" ? "" : <Temperatura valor={comando.nome} />,
+      fanVelocity: comando.nome == "Desligar" ? "" : <Fan valor={index % 3} />,
+      mode: comando.nome == "Desligar" ? "" : <Mode conf={index % 3} />,
       action: (
         <MenuFlutuante index={index} deleteButton={handleBotaoDelete} />
         // <IconButton onClick={(e) => abrirMenu(e, index)}>
