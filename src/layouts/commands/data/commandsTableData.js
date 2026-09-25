@@ -126,7 +126,7 @@ export default function data(comandos, handleBotaoDelete) {
       project: (
         <MDBox display="flex" alignItems="center" lineHeight={1}>
           <MDTypography display="block" variant="button" fontWeight="medium" ml={1} lineHeight={1}>
-            {comando.nome}
+            {comando.nome == "Desligar" ? comando.nome : "Ligar/Configurar"}
           </MDTypography>
         </MDBox>
       ),
