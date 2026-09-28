@@ -1,20 +1,275 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/function-component-definition */
+// import Grid from "@mui/material/Grid";
 
+import Grid from "@mui/material/Grid";
+import Card from "@mui/material/Card";
 
-function MyButton() {
+// Material Dashboard 2 React components
+import MDBox from "components/MDBox";
+import MDTypography from "components/MDTypography";
+import IconButton from "@mui/material/IconButton";
+import Icon from "@mui/material/Icon";
+
+// Material Dashboard 2 React example components
+import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
+import DashboardNavbar from "examples/Navbars/DashboardNavbar";
+import Footer from "examples/Footer";
+import DataTable from "examples/Tables/DataTable";
+
+// Data
+// import authorsTableData from "layouts/tables/data/authorsTableData";
+// import projectsTableData from "layouts/tables/data/projectsTableData";
+import arCondTableData from "layouts/ArCondicionado/data/arCondicionadoTableData";
+import ArAddForm from "layouts/ArCondicionado/forms/AddArForm";
+import ArEditForm from "layouts/ArCondicionado/forms/EditArForm";
+import { useState, useEffect } from "react";
+import getApiAddress from "serverAddress";
+
+import { useSocket } from "context/SocketContext";
+
+// function Agendamento() {
+//   return (
+//     pass
+//   );
+// }
+function Tables() {
+  const { socket, isConnected, connectionError } = useSocket();
+
+  const [exibirAddForm, setExibirAddForm] = useState(false);
+  const [exibirEditForm, setExibirEditForm] = useState(false);
+  const [idEdit, setIdEdit] = useState();
+  const [update, setUpdate] = useState(false);
+  const [condicionadoresAr, setCondicionadoresAr] = useState([]);
+
+  const condicionadores = condicionadoresAr;
+
+  useEffect(() => {
+    const api = getApiAddress();
+    fetch(api.database + "/ar-cadastrados", {
+      method: "GET",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+        // Authorization: "Bearer " + authData.tokenLocal,
+      },
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((json) => {
+        if (json.status == "ok") {
+          const dados = json.dados;
+          const ca = [];
+          dados.forEach((arCondicionando) => {
+            ca.push({
+              id: arCondicionando.id,
+              sala: arCondicionando.sala_nome,
+              codigo: arCondicionando.sala_cod,
+              temperatura: {
+                referencia: arCondicionando.temperatura_referencia,
+                medicao: arCondicionando.temperatura_medida,
+              },
+              status: arCondicionando.status,
+              marca: arCondicionando.marca,
+              modelo: arCondicionando.modelo,
+              atuadorVazio: arCondicionando.atuador == "",
+            });
+          });
+          setCondicionadoresAr(ca);
+        }
+      });
+  }, [update]);
+
+  useEffect(() => {
+    function handleMqttMessage(dados) {
+      const api = getApiAddress();
+      console.log("Mensagem recebida:", dados);
+
+      // setUltimaMensagem(dados);
+      fetch(api.database + "/ar-cadastrados", {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          // Authorization: "Bearer " + authData.tokenLocal,
+        },
+      })
+        .then((res) => {
+          return res.json();
+        })
+        .then((json) => {
+          if (json.status == "ok") {
+            const dados = json.dados;
+            const ca = [];
+            dados.forEach((arCondicionando) => {
+              ca.push({
+                id: arCondicionando.id,
+                sala: arCondicionando.sala_nome,
+                codigo: arCondicionando.sala_cod,
+                temperatura: {
+                  referencia: arCondicionando.temperatura_referencia,
+                  medicao: arCondicionando.temperatura_medida,
+                },
+                status: arCondicionando.status,
+                marca: arCondicionando.marca,
+                modelo: arCondicionando.modelo,
+                atuadorVazio: arCondicionando.atuador == "",
+              });
+            });
+            setCondicionadoresAr(ca);
+          }
+        });
+    }
+
+    socket.emit("inscrever_sala", {
+      soketIO_sala_id: "dashboard",
+    });
+    socket.on("status_ar_atualizado", handleMqttMessage);
+
+    return () => {
+      socket.emit("cancelar_sala", {
+        soketIO_sala_id: "dashboard",
+      });
+      socket.off("status_ar_atualizado", handleMqttMessage);
+    };
+  }, [socket]);
+
+  const defaultValue = {
+    salas: ["robotica", "estudo de info"],
+    marcaModelo: [
+      { marca: "hitachi", modelo: "modelo 1" },
+      { marca: "Midea", modelo: "modelo 1" },
+    ],
+  };
+
+  const addAr = () => {
+    // console.log("addAr");
+    setExibirAddForm(true);
+  };
+
+  const handleDelete = (index) => {
+    console.log("delete");
+  };
+
+  const handleEdit = (id) => {
+    setIdEdit(id);
+    setExibirEditForm(true);
+  };
+
+  const handleOnOff = (id, state, temperatura) => {
+    const api = getApiAddress();
+    const cmd = state == "ligado" ? "Desligar" : "ligar " + Math.trunc(temperatura);
+
+    fetch(api.database + "/ar-cadastrados/" + id + "/enviar-comando", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+      body: JSON.stringify({
+        comando_nome: cmd,
+      }),
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((json) => {
+        if (json.status == "ok") {
+          alert("comando enviado");
+        } else {
+          alert(json.mensagem);
+        }
+      });
+  };
+
+  // const { columns, rows } = authorsTableData();
+  const { columns: aColumns, rows: aRows } = arCondTableData(
+    condicionadores,
+    handleDelete,
+    handleEdit,
+    handleOnOff
+  );
+
   return (
-    <button>
-      Eu sou um botão
-    </button>
+    <DashboardLayout>
+      <DashboardNavbar />
+      <MDBox pt={6} pb={3}>
+        <Grid container spacing={6}>
+          {/* <Grid item xs={12}>
+            <Card>
+              <MDBox
+                mx={2}
+                mt={-3}
+                py={3}
+                px={2}
+                variant="gradient"
+                bgColor="info"
+                borderRadius="lg"
+                coloredShadow="info"
+              >
+                <MDTypography variant="h6" color="white">
+                  Authors Table
+                </MDTypography>
+              </MDBox>
+              <MDBox pt={3}>
+                <DataTable
+                  table={{ columns, rows }}
+                  isSorted={false}
+                  entriesPerPage={false}
+                  showTotalEntries={false}
+                  noEndBorder
+                />
+              </MDBox>
+            </Card>
+          </Grid> */}
+          <Grid item xs={12}>
+            <Card>
+              <MDBox
+                mx={2}
+                mt={-3}
+                py={3}
+                px={2}
+                variant="gradient"
+                bgColor="info"
+                borderRadius="lg"
+                coloredShadow="info"
+              >
+                <MDTypography variant="h6" color="white">
+                  Condicionadores de Ar
+                </MDTypography>
+                <IconButton onClick={(e) => addAr(e)}>
+                  <Icon>add</Icon>
+                </IconButton>
+              </MDBox>
+              <MDBox pt={3}>
+                <DataTable
+                  table={{ columns: aColumns, rows: aRows }}
+                  isSorted={false}
+                  entriesPerPage={false}
+                  showTotalEntries={false}
+                  noEndBorder
+                />
+              </MDBox>
+            </Card>
+          </Grid>
+        </Grid>
+      </MDBox>
+      <ArAddForm
+        defaultValue={defaultValue}
+        showForm={exibirAddForm}
+        setShowForm={setExibirAddForm}
+        isToUpdate={update}
+        setIsToUpdate={setUpdate}
+      />
+      <ArEditForm
+        defaultValue={{ id: idEdit }}
+        showForm={exibirEditForm}
+        setShowForm={setExibirEditForm}
+        isToUpdate={update}
+        setIsToUpdate={setUpdate}
+      />
+      <Footer />
+    </DashboardLayout>
   );
 }
 
-export default function MyApp() {
-  return (
-    <div>
-      <h1>Bem-vindo ao meu aplicativo</h1>
-      <MyButton />
-    </div>
-  );
-}
+export default Tables;
+// export default Agendamento;

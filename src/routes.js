@@ -41,6 +41,7 @@ import Tables from "layouts/tables";
 import Forms from "layouts/formAr";
 import Commands from "layouts/commands";
 import ArCondicionado from "layouts/ArCondicionado";
+import Agendamento from "layouts/agendamento";
 import Billing from "layouts/billing";
 import RTL from "layouts/rtl";
 import Notifications from "layouts/notifications";
@@ -108,7 +109,7 @@ const routes = [
     key: "agendamento",
     icon: <Icon>event</Icon>,
     route: "/Agendamento",
-    component: <agendamento />,
+    component: <Agendamento />,
   },
   // {
   //   type: "collapse",
