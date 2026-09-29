@@ -1,9 +1,9 @@
-/**
+/*
 =========================================================
 * Material Dashboard 2 React - v2.2.0
 =========================================================
 
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react)
+* Product Page: https://www.creative-tim.com/product/material-dashboard-react
 * Copyright 2023 Creative Tim (https://www.creative-tim.com)
 
 Coded by www.creative-tim.com
@@ -49,6 +49,7 @@ import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 import Projects from "layouts/dashboard/components/Projects";
 import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
 
+<<<<<<< Updated upstream
 const sala_map= {
   A108: "sala08",
   212: "sala12",
@@ -58,11 +59,27 @@ const sala_map= {
 
 };
 
+=======
+// Mapeamento idêntico ao solicitado no cartão do Trello
+const sala_map = {
+  A108: "sala08",
+  "212": "sala12",
+  A211: "sala21",
+  A111: "sala11",
+  A208: "sala20",
+};
+
+const API_BASE_URL = "http://localhost:5000";
+
+>>>>>>> Stashed changes
 function Dashboard() {
   const [arSelecionado, setArSelecionado] = useState(null);
   const [painelAberto, setPainelAberto] = useState(false);
 
-  // Estado centralizado das salas para permitir atualização em tempo real
+  // Estado ares idêntico ao padrão do professor
+  const [ares, setAres] = useState([]);
+
+  // Estado centralizado das salas
   const [rooms, setRooms] = useState({
     sala09: { acState: ["on"], tempC: 23.4 },
     sala02: { acState: ["off", "on", "on"], tempC: 27.1 },
@@ -72,7 +89,7 @@ function Dashboard() {
     sala06: { acState: ["on"], tempC: 22.37 },
     sala07: { acState: ["off"], tempC: 27.1 },
     sala08: { acState: ["unmanaged"], tempC: null },
-    sala09: { acState: ["on", "on", "off"], tempC: 32.37 },
+    sala12: { acState: ["unmanaged"], tempC: null },
     sala17: { acState: ["on"], tempC: 17.8 },
     sala18: { acState: ["on"], tempC: 17.8 },
     sala20: { acState: ["on"], tempC: 17.8 },
@@ -123,8 +140,60 @@ function Dashboard() {
 
   const { sales, tasks } = reportsLineChartData;
 
-  // Atualiza o estado da sala no objeto centralizado e na seleção atual
+  // Busca os dados na API e guarda no 'ares'
+  const fetchAres = () => {
+    fetch(`${API_BASE_URL}/ar-cadastrados`)
+      .then((response) => response.json())
+      .then((data) => {
+        const listaAres = Array.isArray(data) ? data : data.dados || [];
+        setAres(listaAres);
+
+        // Atualiza o estado da planta 'rooms' mantendo as salas estáticas
+        setRooms((prevRooms) => {
+          const updated = { ...prevRooms };
+
+          listaAres.forEach((item) => {
+            const roomKey = sala_map[item.sala_cod] || item.sala_cod;
+
+            let state = "unmanaged";
+            if (item.status === "on" || item.status === "ligado") state = "on";
+            if (item.status === "off" || item.status === "desligado") state = "off";
+
+            // Tratamento contra o valor "desconhecido" retornado na API
+            const rawTemp =
+              item.temperatura_medida !== "desconhecido" && item.temperatura_medida != null
+                ? item.temperatura_medida
+                : item.temperatura_referencia;
+
+            const temp = parseFloat(rawTemp);
+
+            updated[roomKey] = {
+              ...updated[roomKey],
+              acState: [state],
+              tempC: isNaN(temp) ? null : temp,
+              rawId: item.id,
+              salaCod: item.sala_cod,
+            };
+          });
+
+          return updated;
+        });
+      })
+      .catch((error) => console.error("Erro ao carregar ares:", error));
+  };
+
+  useEffect(() => {
+    fetchAres();
+  }, []);
+
+  // Atualiza a sala localmente e dispara o PUT para o servidor
   const updateRoomState = (roomId, newAcState, newTemp) => {
+    const targetAr = ares.find(
+      (item) => (sala_map[item.sala_cod] || item.sala_cod) === roomId
+    );
+
+    const dbId = targetAr ? targetAr.id : arSelecionado?.rawId || roomId;
+
     setRooms((prev) => {
       const updated = {
         ...prev,
@@ -144,6 +213,21 @@ function Dashboard() {
 
       return updated;
     });
+
+    const payload = {
+      status: newAcState ? newAcState[0] : undefined,
+      temperatura: newTemp,
+    };
+
+    fetch(`${API_BASE_URL}/ar-cadastrados/${dbId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    })
+      .then(() => fetchAres())
+      .catch((err) => console.error("Erro ao atualizar banco de dados:", err));
   };
 
   // Funções de controle do ar-condicionado
@@ -213,7 +297,7 @@ function Dashboard() {
               </MDTypography>
 
               <MDTypography variant="body2" mb={2} sx={{ whiteSpace: "nowrap" }}>
-                <strong>Sala:</strong> {arSelecionado.id}
+                <strong>Sala:</strong> {arSelecionado.salaCod || arSelecionado.id}
               </MDTypography>
 
               <MDTypography variant="body2" mb={2} sx={{ whiteSpace: "nowrap" }}>
@@ -232,7 +316,7 @@ function Dashboard() {
                   : "Não gerenciado"}
               </MDTypography>
 
-              {/* Painel de Controles: Alternância Dinâmica do Botão Ligar/Desligar e Alterar Temperatura */}
+              {/* Painel de Controles */}
               {!arSelecionado.acState?.includes("unmanaged") && (
                 <>
                   <Divider sx={{ my: 3 }} />
@@ -241,7 +325,7 @@ function Dashboard() {
                     Controles
                   </MDTypography>
 
-                  {/* Botão Dinâmico: Exibe apenas o botão de 'Desligar' se estiver LIGADO, ou 'Ligar' se estiver DESLIGADO */}
+                  {/* Alternância do Botão Ligar/Desligar */}
                   <MDBox mb={3}>
                     {arSelecionado.acState?.includes("on") ? (
                       <MDButton
@@ -292,7 +376,6 @@ function Dashboard() {
                         <RemoveIcon />
                       </IconButton>
 
-                      {/* eslint-disable prettier/prettier */}
                       <MDTypography variant="h6" sx={{ minWidth: "65px", textAlign: "center" }}>
                         {Number.isFinite(arSelecionado.tempC) ? `${arSelecionado.tempC}°C` : "--"}
                       </MDTypography>
