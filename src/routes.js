@@ -108,7 +108,7 @@ const routes = [
     name: "Agendamento",
     key: "agendamento",
     icon: <Icon>event</Icon>,
-    route: "/Agendamento",
+    route: "/agendamento",
     component: <Agendamento />,
   },
   // {

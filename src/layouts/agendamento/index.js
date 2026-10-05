@@ -20,7 +20,7 @@ import DataTable from "examples/Tables/DataTable";
 // Data
 // import authorsTableData from "layouts/tables/data/authorsTableData";
 // import projectsTableData from "layouts/tables/data/projectsTableData";
-import arCondTableData from "layouts/ArCondicionado/data/arCondicionadoTableData";
+import arCondTableData from "layouts/agendamento/data/agendamentoTableData";
 import ArAddForm from "layouts/ArCondicionado/forms/AddArForm";
 import ArEditForm from "layouts/ArCondicionado/forms/EditArForm";
 import { useState, useEffect } from "react";
@@ -134,10 +134,10 @@ function Tables() {
   }, [socket]);
 
   const defaultValue = {
-    salas: ["robotica", "estudo de info"],
+    salas: ["CARLOS ALBERTO", "estudo de quem é verity"],
     marcaModelo: [
-      { marca: "hitachi", modelo: "modelo 1" },
-      { marca: "Midea", modelo: "modelo 1" },
+      { marca: "BTW", modelo: "modelo 42" },
+      { marca: "shinra", modelo: "modelo 67" },
     ],
   };
 
