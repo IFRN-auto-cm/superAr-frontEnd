@@ -5,10 +5,10 @@
 * Material Dashboard 2 React - v2.2.0
 =========================================================
 
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
+* Product Page: https://creative-tim.com
+* Copyright 2023 Creative Tim (https://creative-tim.com)
 
-Coded by www.creative-tim.com
+Coded by ://creative-tim.com
 
  =========================================================
 
@@ -114,6 +114,7 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
       </MDBox>
     </MDBox>
   );
+
   console.log(aresCondicionados);
   return {
     columns: [
@@ -126,38 +127,84 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
       { Header: "ações", accessor: "action", align: "center" },
     ],
 
-    rows: aresCondicionados.map((mm, index) => ({
-      // project: <Project image={LogoAr} name={mm.sala} />,
-      // project: <MarcaModelo image={LogoAr} name={mm.sala} modelo={mm.marca} />,
-      project: <Author image={LogoAr} name={mm.codigo} email={mm.sala} />,
-      budget:"ajuda nós, lennedy :( ",
-      completion: (
-        // <Progress color="info" value={mm.temperatura.medicao - mm.temperatura.referencia} />
-        // <Author name={mm.marca} email={mm.modelo} />
-        <Job title={mm.marca} description={mm.modelo} />
-      ),
-      status: !mm.atuadorVazio ? (
-        <Tooltip title={"Clique para " + (mm.status == "ligado" ? "desligar" : "ligar")}>
-          <IconButton
-            onClick={() => {
-              // console.log("Imagem clicada");
-              triggerButton(mm.id, mm.status, mm.temperatura.referencia);
-            }}
-          >
-            <img src={mm.status == "ligado" ? iconArOn : iconArOff} alt="logo" width={45} />
-          </IconButton>
-        </Tooltip>
-      ) : (
-        <Tooltip title="Endereço do atuador está vazio">
-          <img src={iconArLock} alt="logo" width={45} />
-        </Tooltip>
-      ),
-      action: (
-        <MenuFlutuante
-          deleteButton={() => deleteButton(index)}
-          editButton={() => editButton(mm.id)}
-        />
-      ),
-    })),
+    rows: aresCondicionados.map((mm, index) => {
+      const aparelhosPorSala = { A108: 3, 212: 1, A211: 4, A111: 2, A208: 5, A205: 6 };
+
+      const diasPorSala = {
+        A108: "Sex - Qua",
+        212: "Qui - Sex",
+        A211: "Seg - Sex",
+        A111: "Ter - Qui",
+        A208: "Seg - Qua",
+        A205: "Sex",
+      };
+
+      const horariosLiga = {
+        A108: "07:00",
+        212: "13:00",
+        A211: "07:30",
+        A111: "08:00",
+        A208: "14:00",
+        A205: "07:00",
+      };
+
+      const horariosDesliga = {
+        A108: "12:00",
+        212: "18:00",
+        A211: "11:30",
+        A111: "17:00",
+        A208: "22:00",
+        A205: "13:00",
+      };
+
+      const quantidadeValida = Number(aparelhosPorSala[mm.codigo]) || 0;
+      const diasFormatados = diasPorSala[mm.codigo] || "Não definido";
+      const horaLiga = horariosLiga[mm.codigo] || "--:--";
+      const horaDesliga = horariosDesliga[mm.codigo] || "--:--";
+
+      return {
+        // project: <Project image={LogoAr} name={mm.sala} />,
+        // project: <MarcaModelo image={LogoAr} name={mm.sala} modelo={mm.marca} />,
+        project: <Author image={LogoAr} name={mm.codigo} email={mm.sala} />,
+        budget: `${quantidadeValida} ${quantidadeValida === 1 ? "aparelho" : "aparelhos"}`,
+        completion: (
+          // <Progress color="info" value={mm.temperatura.medicao - mm.temperatura.referencia} />
+          // <Author name={mm.marca} email={mm.modelo} />
+          <Job title={diasFormatados} description="" />
+        ),
+        status: !mm.atuadorVazio ? (
+          <Tooltip title={"Clique para " + (mm.status == "ligado" ? "desligar" : "ligar")}>
+            <IconButton
+              onClick={() => {
+                // console.log("Imagem clicada");
+                triggerButton(mm.id, mm.status, mm.temperatura.referencia);
+              }}
+            >
+              <img src={mm.status == "ligado" ? iconArOn : iconArOff} alt="status" width={45} />
+            </IconButton>
+          </Tooltip>
+        ) : (
+          <Tooltip title="Endereço do atuador está vazio">
+            <img src={iconArLock} alt="logo" width={45} />
+          </Tooltip>
+        ),
+        on: (
+          <MDTypography variant="caption" color="text" fontWeight="medium">
+            {horaLiga}
+          </MDTypography>
+        ),
+        off: (
+          <MDTypography variant="caption" color="text" fontWeight="medium">
+            {horaDesliga}
+          </MDTypography>
+        ),
+        action: (
+          <MenuFlutuante
+            deleteButton={() => deleteButton(index)}
+            editButton={() => editButton(mm.id)}
+          />
+        ),
+      };
+    }),
   };
 }
