@@ -134,10 +134,10 @@ function Tables() {
   }, [socket]);
 
   const defaultValue = {
-    salas: ["CARLOS ALBERTO", "estudo de quem é verity"],
+    salas: ["Sala", "Ar"],
     marcaModelo: [
-      { marca: "BTW", modelo: "modelo 42" },
-      { marca: "shinra", modelo: "modelo 67" },
+      { marca: "marca", modelo: "modelo" },
+      { marca: "marca", modelo: "modelo" },
     ],
   };
 
@@ -233,7 +233,7 @@ function Tables() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Condicionadores de Ar
+                  Agendamentos
                 </MDTypography>
                 <IconButton onClick={(e) => addAr(e)}>
                   <Icon>add</Icon>

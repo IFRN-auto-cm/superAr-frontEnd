@@ -39,6 +39,8 @@ import iconArLock from "assets/images/arlock.png";
 import MenuFlutuante from "examples/MenuFlutuante/Menu";
 import IconButton from "@mui/material/IconButton";
 import divider from "assets/theme/components/divider";
+import iconOnButton from "assets/images/iconOn.png";
+import iconOffButton from "assets/images/uncheck-icon.png";
 
 export default function data(aresCondicionados, deleteButton, editButton, triggerButton) {
   const MarcaModelo = ({ image, sala, modelo }) => (
@@ -83,26 +85,26 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
     </MDBox>
   );
 
-  const Temperatura = ({ setpoint, medicao }) => (
-    <MDBox>
-      <MDBox display="flex" gap={0.5} lineHeight={1} textAlign="left">
-        <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
-          Referência:
-        </MDTypography>
-        <MDTypography variant="caption">
-          {Number.isFinite(Number(setpoint)) && setpoint != null ? setpoint + "º" : "desconhecido"}
-        </MDTypography>
-      </MDBox>
-      <MDBox display="flex" gap={2.1} lineHeight={1} textAlign="left">
-        <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
-          Medição:
-        </MDTypography>
-        <MDTypography variant="caption">
-          {Number.isFinite(Number(medicao)) && medicao != null ? medicao + "º" : "desconhecido"}
-        </MDTypography>
-      </MDBox>
-    </MDBox>
-  );
+  // const Temperatura = ({ setpoint, medicao }) => (
+  //   <MDBox>
+  //     <MDBox display="flex" gap={0.5} lineHeight={1} textAlign="left">
+  //       <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
+  //         Referência:
+  //       </MDTypography>
+  //       <MDTypography variant="caption">
+  //         {Number.isFinite(Number(setpoint)) && setpoint != null ? setpoint + "º" : "desconhecido"}
+  //       </MDTypography>
+  //     </MDBox>
+  //     <MDBox display="flex" gap={2.1} lineHeight={1} textAlign="left">
+  //       <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
+  //         Medição:
+  //       </MDTypography>
+  //       <MDTypography variant="caption">
+  //         {Number.isFinite(Number(medicao)) && medicao != null ? medicao + "º" : "desconhecido"}
+  //       </MDTypography>
+  //     </MDBox>
+  //   </MDBox>
+  // );
 
   const Progress = ({ color, value }) => (
     <MDBox display="flex" alignItems="center">
@@ -180,7 +182,11 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
                 triggerButton(mm.id, mm.status, mm.temperatura.referencia);
               }}
             >
-              <img src={mm.status == "ligado" ? iconArOn : iconArOff} alt="status" width={45} />
+              <img
+                src={mm.status == "ligado" ? iconOnButton : iconOffButton}
+                alt="status"
+                width={45}
+              />
             </IconButton>
           </Tooltip>
         ) : (

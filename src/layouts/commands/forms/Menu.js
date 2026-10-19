@@ -41,7 +41,6 @@ function MenuFlutuante({ index, deleteButton }) {
         >
           Excluir
         </MenuItem>
-        <MenuItem onClick={fecharMenu}>Detalhes</MenuItem>
       </Menu>
     </>
   );
