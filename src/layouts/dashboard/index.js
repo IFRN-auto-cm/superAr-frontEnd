@@ -13,6 +13,8 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
+
+
 import { ReactComponent as Planta } from "assets/planta_p1.svg";
 import PlantaArCondicionado from "layouts/dashboard/components/PlantaArCondicionado";
 
