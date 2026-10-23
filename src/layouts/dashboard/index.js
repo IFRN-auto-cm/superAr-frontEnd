@@ -277,7 +277,7 @@ function Dashboard() {
                 {arSelecionado.salaNome || arSelecionado.salaCod || arSelecionado.id}
               </MDTypography>
 
-              {/* 👈 Exibição da Marca e Modelo (caso retornados do backend) */}
+              {/* Exibição da Marca e Modelo (caso retornados do backend) */}
               {arSelecionado.marca && (
                 <MDTypography variant="body2" mb={2} sx={{ whiteSpace: "nowrap" }}>
                   <strong>Marca / Modelo:</strong> {arSelecionado.marca}{" "}
@@ -285,7 +285,7 @@ function Dashboard() {
                 </MDTypography>
               )}
 
-              {/* 👈 Exibição do Atuador / Endereço (caso retornado do backend) */}
+              {/*  Exibição do Atuador / Endereço (caso retornado do backend) */}
               {arSelecionado.atuador && (
                 <MDTypography variant="body2" mb={2} sx={{ whiteSpace: "nowrap" }}>
                   <strong>Atuador / Endereço:</strong> {arSelecionado.atuador}
