@@ -1,24 +1,13 @@
-/**
+/*
 =========================================================
-* Material Dashboard 2 React - v2.2.0
+- Material Dashboard 2 React - v2.2.0
 =========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react)
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
-
-
 
 import { ReactComponent as Planta } from "assets/planta_p1.svg";
 import PlantaArCondicionado from "layouts/dashboard/components/PlantaArCondicionado";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
@@ -51,11 +40,37 @@ import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 import Projects from "layouts/dashboard/components/Projects";
 import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
 
+// Mapeamento das salas (de acordo com as especificações da tarefa)
+const sala_map = {
+  A108: "sala08",
+  212: "sala12",
+  A211: "sala21",
+  A111: "sala11",
+  A208: "sala20",
+};
+
+const obterIdSala = (codigo) => {
+  const codigoNormalizado = String(codigo ?? "")
+    .trim()
+    .toUpperCase();
+  return sala_map[codigoNormalizado] || null;
+};
+
+const converterTemperatura = (...valores) => {
+  for (const valor of valores) {
+    if (valor === null || valor === undefined || valor === "" || valor === "desconhecido") continue;
+    const temperatura = Number(valor);
+    if (Number.isFinite(temperatura)) return temperatura;
+  }
+  return null;
+};
+
 function Dashboard() {
   const [arSelecionado, setArSelecionado] = useState(null);
   const [painelAberto, setPainelAberto] = useState(false);
 
-  // Estado centralizado das salas para permitir atualização em tempo real
+  const [ares, setAres] = useState([]);
+
   const [rooms, setRooms] = useState({
     sala09: { acState: ["on"], tempC: 23.4 },
     sala02: { acState: ["off", "on", "on"], tempC: 27.1 },
@@ -65,7 +80,7 @@ function Dashboard() {
     sala06: { acState: ["on"], tempC: 22.37 },
     sala07: { acState: ["off"], tempC: 27.1 },
     sala08: { acState: ["unmanaged"], tempC: null },
-    sala09: { acState: ["on", "on", "off"], tempC: 32.37 },
+    sala12: { acState: ["unmanaged"], tempC: null },
     sala17: { acState: ["on"], tempC: 17.8 },
     sala18: { acState: ["on"], tempC: 17.8 },
     sala20: { acState: ["on"], tempC: 17.8 },
@@ -74,14 +89,81 @@ function Dashboard() {
 
   const { sales, tasks } = reportsLineChartData;
 
-  // Atualiza o estado da sala no objeto centralizado e na seleção atual
+  // Busca lista de ar-condicionados no backend Flask
+  useEffect(() => {
+    fetch("http://localhost:5000/ar-cadastrados")
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "ok" && Array.isArray(data.dados)) {
+          setAres(data.dados);
+
+          setRooms((prevRooms) => {
+            const updatedRooms = { ...prevRooms };
+
+            data.dados.forEach((ar) => {
+              // Converte o código do banco para o ID da sala existente na planta.
+              const roomId = obterIdSala(ar.sala_cod);
+              if (!roomId) {
+                console.warn("Código de sala sem correspondência na planta:", ar.sala_cod);
+                return;
+              }
+
+              // Status desconhecido não torna um aparelho cadastrado não gerenciável.
+              const status = String(ar.status ?? "")
+                .trim()
+                .toLowerCase();
+              let acState = ["unmanaged"];
+              if (status === "ligado" || status === "on") {
+                acState = ["on"];
+              } else if (status === "desligado" || status === "off") {
+                acState = ["off"];
+              }
+
+              const tempVal = converterTemperatura(
+                ar.temperatura_medida,
+                ar.temperatura_setpoint,
+                ar.temperatura_referencia
+              );
+
+              updatedRooms[roomId] = {
+                acState,
+                tempC: tempVal,
+                rawId: ar.id,
+                gerenciavel: true,
+                statusConhecido: acState[0] !== "unmanaged",
+                salaCod: ar.sala_cod,
+                salaNome: ar.sala_nome,
+                nomeAr: ar.nome_ar,
+                marca: ar.marca,
+                modelo: ar.modelo,
+                atuador: ar.atuador,
+              };
+            });
+
+            return updatedRooms;
+          });
+        }
+      })
+      .catch((err) => console.error("Erro ao buscar ares cadastrados:", err));
+  }, []);
+
+  // =====================================================
+  // CONTROLE DO AR
+  // =====================================================
+
   const updateRoomState = (roomId, newAcState, newTemp) => {
+    const targetAr = ares.find((item) => obterIdSala(item.sala_cod) === roomId);
+
+    const dbId = targetAr ? targetAr.id : arSelecionado?.rawId;
+
+    // Atualização otimista da UI
     setRooms((prev) => {
       const updated = {
         ...prev,
         [roomId]: {
           ...prev[roomId],
           ...(newAcState !== undefined && { acState: newAcState }),
+          ...(newAcState !== undefined && { statusConhecido: !newAcState.includes("unmanaged") }),
           ...(newTemp !== undefined && { tempC: newTemp }),
         },
       };
@@ -95,19 +177,43 @@ function Dashboard() {
 
       return updated;
     });
+
+    // Se temos o ID cadastrado do banco, envia o comando
+    if (dbId) {
+      const isPowerOn = newAcState
+        ? newAcState.includes("on") || (newAcState.includes("unmanaged") && newTemp !== undefined)
+        : false;
+      const temperatura = newTemp ?? arSelecionado?.tempC ?? 22;
+      const comandoNome = isPowerOn ? `ligar ${Math.round(temperatura)}` : "desligar";
+
+      fetch(`http://localhost:5000/ar-cadastrados/${dbId}/enviar-comando`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ comando_nome: comandoNome }),
+      }).catch((err) => console.error("Erro ao enviar comando para o ar:", err));
+    }
   };
 
-  // Funções de controle do ar-condicionado
   const handleTogglePower = (powerState) => {
     if (!arSelecionado) return;
+
     updateRoomState(arSelecionado.id, [powerState], arSelecionado.tempC ?? 22);
   };
 
   const handleAdjustTemp = (delta) => {
-    if (!arSelecionado || arSelecionado.tempC === null) return;
+    if (!arSelecionado || arSelecionado.tempC === null) {
+      return;
+    }
+
     const currentTemp = Number(arSelecionado.tempC) || 22;
     const newTemp = parseFloat((currentTemp + delta).toFixed(1));
-    updateRoomState(arSelecionado.id, arSelecionado.acState, newTemp);
+    const estadoAtualizado = arSelecionado.acState?.includes("unmanaged")
+      ? ["on"]
+      : arSelecionado.acState;
+
+    updateRoomState(arSelecionado.id, estadoAtualizado, newTemp);
   };
 
   return (
@@ -117,10 +223,13 @@ function Dashboard() {
       <MDBox py={3}>
         <PlantaArCondicionado
           rooms={rooms}
-          onRoomClick={(id, data) => {
+          onRoomClick={(id) => {
+            // Garante a leitura direta do estado atualizado do rooms ao clicar na sala
+            const roomData = rooms[id] || { acState: ["unmanaged"], tempC: null };
+
             setArSelecionado({
               id,
-              ...data,
+              ...roomData,
             });
 
             setPainelAberto(true);
@@ -128,7 +237,7 @@ function Dashboard() {
         />
       </MDBox>
 
-      {/* Modal centralizado com informações do ar-condicionado */}
+      {/* MODAL */}
       <Dialog
         open={painelAberto}
         onClose={() => setPainelAberto(false)}
@@ -156,16 +265,32 @@ function Dashboard() {
 
           <Divider sx={{ mb: 3 }} />
 
-          {/* Informações do aparelho selecionado */}
+          {/* Informações */}
           {arSelecionado && (
             <MDBox sx={{ maxHeight: "70vh", overflowY: "auto" }}>
               <MDTypography variant="h6" mb={3} noWrap>
-                Ar-condicionado {arSelecionado.id}
+                Ar-condicionado {arSelecionado.nomeAr || arSelecionado.id}
               </MDTypography>
 
               <MDTypography variant="body2" mb={2} sx={{ whiteSpace: "nowrap" }}>
-                <strong>Sala:</strong> {arSelecionado.id}
+                <strong>Sala:</strong>{" "}
+                {arSelecionado.salaNome || arSelecionado.salaCod || arSelecionado.id}
               </MDTypography>
+
+              {/* 👈 Exibição da Marca e Modelo (caso retornados do backend) */}
+              {arSelecionado.marca && (
+                <MDTypography variant="body2" mb={2} sx={{ whiteSpace: "nowrap" }}>
+                  <strong>Marca / Modelo:</strong> {arSelecionado.marca}{" "}
+                  {arSelecionado.modelo ? `- ${arSelecionado.modelo}` : ""}
+                </MDTypography>
+              )}
+
+              {/* 👈 Exibição do Atuador / Endereço (caso retornado do backend) */}
+              {arSelecionado.atuador && (
+                <MDTypography variant="body2" mb={2} sx={{ whiteSpace: "nowrap" }}>
+                  <strong>Atuador / Endereço:</strong> {arSelecionado.atuador}
+                </MDTypography>
+              )}
 
               <MDTypography variant="body2" mb={2} sx={{ whiteSpace: "nowrap" }}>
                 <strong>Temperatura:</strong>{" "}
@@ -180,11 +305,13 @@ function Dashboard() {
                   ? "Ligado"
                   : arSelecionado.acState?.includes("off")
                   ? "Desligado"
+                  : arSelecionado.gerenciavel
+                  ? "Status desconhecido"
                   : "Não gerenciado"}
               </MDTypography>
 
-              {/* Painel de Controles: Alternância Dinâmica do Botão Ligar/Desligar e Alterar Temperatura */}
-              {!arSelecionado.acState?.includes("unmanaged") && (
+              {/* CONTROLES */}
+              {arSelecionado.gerenciavel && (
                 <>
                   <Divider sx={{ my: 3 }} />
 
@@ -192,7 +319,7 @@ function Dashboard() {
                     Controles
                   </MDTypography>
 
-                  {/* Botão Dinâmico: Exibe apenas o botão de 'Desligar' se estiver LIGADO, ou 'Ligar' se estiver DESLIGADO */}
+                  {/* Ligar / Desligar */}
                   <MDBox mb={3}>
                     {arSelecionado.acState?.includes("on") ? (
                       <MDButton
@@ -217,7 +344,7 @@ function Dashboard() {
                     )}
                   </MDBox>
 
-                  {/* Controle de Temperatura */}
+                  {/* Temperatura */}
                   <MDBox
                     display="flex"
                     alignItems="center"
@@ -243,7 +370,6 @@ function Dashboard() {
                         <RemoveIcon />
                       </IconButton>
 
-                      {/* eslint-disable prettier/prettier */}
                       <MDTypography variant="h6" sx={{ minWidth: "65px", textAlign: "center" }}>
                         {Number.isFinite(arSelecionado.tempC) ? `${arSelecionado.tempC}°C` : "--"}
                       </MDTypography>
@@ -262,6 +388,7 @@ function Dashboard() {
 
               <Divider sx={{ my: 3 }} />
 
+              {/* STATUS */}
               <MDTypography variant="h6" mb={2} noWrap>
                 Status do aparelho
               </MDTypography>
@@ -272,22 +399,34 @@ function Dashboard() {
                   borderRadius: 2,
                   backgroundColor: arSelecionado.acState?.includes("on")
                     ? "rgba(46, 125, 50, 0.12)"
+                    : arSelecionado.gerenciavel && !arSelecionado.statusConhecido
+                    ? "rgba(237, 108, 2, 0.12)"
                     : "rgba(211, 47, 47, 0.12)",
                   border: "1px solid",
                   borderColor: arSelecionado.acState?.includes("on")
                     ? "success.main"
+                    : arSelecionado.gerenciavel && !arSelecionado.statusConhecido
+                    ? "warning.main"
                     : "error.main",
                 }}
               >
                 <MDTypography
                   variant="h6"
-                  color={arSelecionado.acState?.includes("on") ? "success" : "error"}
+                  color={
+                    arSelecionado.acState?.includes("on")
+                      ? "success"
+                      : arSelecionado.gerenciavel && !arSelecionado.statusConhecido
+                      ? "warning"
+                      : "error"
+                  }
                   sx={{ whiteSpace: "nowrap" }}
                 >
                   {arSelecionado.acState?.includes("on")
                     ? "● Aparelho ligado"
                     : arSelecionado.acState?.includes("off")
                     ? "● Aparelho desligado"
+                    : arSelecionado.gerenciavel
+                    ? "● Aguardando status do aparelho"
                     : "● Não gerenciado"}
                 </MDTypography>
               </MDBox>
@@ -302,3 +441,5 @@ function Dashboard() {
 }
 
 export default Dashboard;
+index.js
+Exibindo index.js.
