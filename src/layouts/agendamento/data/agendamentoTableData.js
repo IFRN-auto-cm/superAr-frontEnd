@@ -76,6 +76,26 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
     </MDBox>
   );
 
+  const Status = ({ online }) => {
+    let cor = "light";
+    if (online) {
+      cor = "success";
+    }
+    return (
+      <MDBox lineHeight={1} textAlign="left">
+        <MDBox
+          color="white"
+          bgColor={cor}
+          variant="gradient"
+          borderRadius="50%"
+          shadow="lg"
+          opacity={1}
+          p={1.5}
+        />
+      </MDBox>
+    );
+  };
+
   const Project = ({ image, name }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
       <MDAvatar src={image} name={name} size="sm" variant="rounded" />
@@ -120,97 +140,112 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
   console.log(aresCondicionados);
   return {
     columns: [
-      { Header: "Nome", accessor: "project", width: "30%", align: "left" },
-      { Header: "condicionadores", accessor: "budget", align: "left" },
-      { Header: "dias", accessor: "completion", align: "left" },
       { Header: "status", accessor: "status", align: "center" },
+      { Header: "Nome", accessor: "nome", width: "30%", align: "left" },
+      { Header: "nº aparelhos", accessor: "budget", align: "left" },
+      { Header: "dias", accessor: "completion", align: "left" },
       { Header: "liga", accessor: "on", align: "left" },
       { Header: "desliga", accessor: "off", align: "left" },
       { Header: "ações", accessor: "action", align: "center" },
     ],
+    rows: [
+      {
+        nome: <Author image={LogoAr} name={"tsete"} email={"sala"} />,
+        budget: <Job title={"el"} description="lkfjsdlkfjsdl" />,
+        completion: <Job title={"luca"} description="precisa estudar" />,
+        status: <Status online={false} />,
+      },
+      {
+        nome: <Author image={LogoAr} name={"tsete"} email={"sala"} />,
+        budget: <Job title={"tursimo"} description="aldirar" />,
+        completion: <Job title={"altruista"} description="vamo q vamos" />,
+        status: <Status online={true} />,
+      },
+    ],
+    // rows: aresCondicionados.map((mm, index) => {
+    //   const aparelhosPorSala = { A108: 3, 212: 1, A211: 4, A111: 2, A208: 5, A205: 6 };
 
-    rows: aresCondicionados.map((mm, index) => {
-      const aparelhosPorSala = { A108: 3, 212: 1, A211: 4, A111: 2, A208: 5, A205: 6 };
+    //   const diasPorSala = {
+    //     A108: "Sex - Qua",
+    //     212: "Qui - Sex",
+    //     A211: "Seg - Sex",
+    //     A111: "Ter - Qui",
+    //     A208: "Seg - Qua",
+    //     A205: "Sex",
+    //   };
 
-      const diasPorSala = {
-        A108: "Sex - Qua",
-        212: "Qui - Sex",
-        A211: "Seg - Sex",
-        A111: "Ter - Qui",
-        A208: "Seg - Qua",
-        A205: "Sex",
-      };
+    //   const horariosLiga = {
+    //     A108: "07:00",
+    //     212: "13:00",
+    //     A211: "07:30",
+    //     A111: "08:00",
+    //     A208: "14:00",
+    //     A205: "07:00",
+    //   };
 
-      const horariosLiga = {
-        A108: "07:00",
-        212: "13:00",
-        A211: "07:30",
-        A111: "08:00",
-        A208: "14:00",
-        A205: "07:00",
-      };
+    //   const horariosDesliga = {
+    //     A108: "12:00",
+    //     212: "18:00",
+    //     A211: "11:30",
+    //     A111: "17:00",
+    //     A208: "22:00",
+    //     A205: "13:00",
+    //   };
 
-      const horariosDesliga = {
-        A108: "12:00",
-        212: "18:00",
-        A211: "11:30",
-        A111: "17:00",
-        A208: "22:00",
-        A205: "13:00",
-      };
+    //   const quantidadeValida = Number(aparelhosPorSala[mm.codigo]) || 0;
+    //   const diasFormatados = diasPorSala[mm.codigo] || "Não definido";
+    //   const horaLiga = horariosLiga[mm.codigo] || "--:--";
+    //   const horaDesliga = horariosDesliga[mm.codigo] || "--:--";
 
-      const quantidadeValida = Number(aparelhosPorSala[mm.codigo]) || 0;
-      const diasFormatados = diasPorSala[mm.codigo] || "Não definido";
-      const horaLiga = horariosLiga[mm.codigo] || "--:--";
-      const horaDesliga = horariosDesliga[mm.codigo] || "--:--";
-
-      return {
-        // project: <Project image={LogoAr} name={mm.sala} />,
-        // project: <MarcaModelo image={LogoAr} name={mm.sala} modelo={mm.marca} />,
-        project: <Author image={LogoAr} name={mm.codigo} email={mm.sala} />,
-        budget: `${quantidadeValida} ${quantidadeValida === 1 ? "aparelho" : "aparelhos"}`,
-        completion: (
-          // <Progress color="info" value={mm.temperatura.medicao - mm.temperatura.referencia} />
-          // <Author name={mm.marca} email={mm.modelo} />
-          <Job title={diasFormatados} description="" />
-        ),
-        status: !mm.atuadorVazio ? (
-          <Tooltip title={"Clique para " + (mm.status == "ligado" ? "desligar" : "ligar")}>
-            <IconButton
-              onClick={() => {
-                // console.log("Imagem clicada");
-                triggerButton(mm.id, mm.status, mm.temperatura.referencia);
-              }}
-            >
-              <img
-                src={mm.status == "ligado" ? iconOnButton : iconOffButton}
-                alt="status"
-                width={45}
-              />
-            </IconButton>
-          </Tooltip>
-        ) : (
-          <Tooltip title="Endereço do atuador está vazio">
-            <img src={iconArLock} alt="logo" width={45} />
-          </Tooltip>
-        ),
-        on: (
-          <MDTypography variant="caption" color="text" fontWeight="medium">
-            {horaLiga}
-          </MDTypography>
-        ),
-        off: (
-          <MDTypography variant="caption" color="text" fontWeight="medium">
-            {horaDesliga}
-          </MDTypography>
-        ),
-        action: (
-          <MenuFlutuante
-            deleteButton={() => deleteButton(index)}
-            editButton={() => editButton(mm.id)}
-          />
-        ),
-      };
-    }),
+    //   return {
+    //     // project: <Project image={LogoAr} name={mm.sala} />,
+    //     // project: <MarcaModelo image={LogoAr} name={mm.sala} modelo={mm.marca} />,
+    //     project: <Author image={LogoAr} name={mm.codigo} email={mm.sala} />,
+    //     budget: `${quantidadeValida} ${quantidadeValida === 1 ? "aparelho" : "aparelhos"}`,
+    //     completion: (
+    //       // <Progress color="info" value={mm.temperatura.medicao - mm.temperatura.referencia} />
+    //       // <Author name={mm.marca} email={mm.modelo} />
+    //       <Job title={diasFormatados} description="" />
+    //     ),
+    //     status: <Status online={mm.atuadorVazio} />,
+    //     // status: !mm.atuadorVazio ? (
+    //     //   // <Tooltip title={"Clique para " + (mm.status == "ligado" ? "desligar" : "ligar")}>
+    //     //   //   <IconButton
+    //     //   //     onClick={() => {
+    //     //   //       // console.log("Imagem clicada");
+    //     //   //       triggerButton(mm.id, mm.status, mm.temperatura.referencia);
+    //     //   //     }}
+    //     //   //   >
+    //     //   //     <img
+    //     //   //       src={mm.status == "ligado" ? iconOnButton : iconOffButton}
+    //     //   //       alt="status"
+    //     //   //       width={45}
+    //     //   //     />
+    //     //   //   </IconButton>
+    //     //   // </Tooltip>
+    //     //   <Status online={mm.atuadorVazio} />
+    //     // ) : (
+    //     //   <Tooltip title="Endereço do atuador está vazio">
+    //     //     <img src={iconArLock} alt="logo" width={45} />
+    //     //   </Tooltip>
+    //     // ),
+    //     on: (
+    //       <MDTypography variant="caption" color="text" fontWeight="medium">
+    //         {horaLiga}
+    //       </MDTypography>
+    //     ),
+    //     off: (
+    //       <MDTypography variant="caption" color="text" fontWeight="medium">
+    //         {horaDesliga}
+    //       </MDTypography>
+    //     ),
+    //     action: (
+    //       <MenuFlutuante
+    //         deleteButton={() => deleteButton(index)}
+    //         editButton={() => editButton(mm.id)}
+    //       />
+    //     ),
+    //   };
+    // }),
   };
 }
