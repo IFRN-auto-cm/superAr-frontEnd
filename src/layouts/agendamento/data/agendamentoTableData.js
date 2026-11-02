@@ -144,7 +144,7 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
       { Header: "Nome", accessor: "nome", width: "30%", align: "left" },
       { Header: "nº aparelhos", accessor: "budget", align: "left" },
       { Header: "dias", accessor: "completion", align: "left" },
-      { Header: "liga", accessor: "on", align: "left" },
+      { Header: "Liga", accessor: "on", align: "left" },
       { Header: "desliga", accessor: "off", align: "left" },
       { Header: "ações", accessor: "action", align: "center" },
     ],
@@ -154,12 +154,14 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
         budget: <Job title={"el"} description="lkfjsdlkfjsdl" />,
         completion: <Job title={"luca"} description="precisa estudar" />,
         status: <Status online={false} />,
+        action: <MenuFlutuante />,
       },
       {
         nome: <Author image={LogoAr} name={"tsete"} email={"sala"} />,
         budget: <Job title={"tursimo"} description="aldirar" />,
         completion: <Job title={"altruista"} description="vamo q vamos" />,
         status: <Status online={true} />,
+        action: <MenuFlutuante />,
       },
     ],
     // rows: aresCondicionados.map((mm, index) => {
