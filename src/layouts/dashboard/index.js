@@ -12,11 +12,13 @@ import { useState, useEffect } from "react";
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Dialog from "@mui/material/Dialog";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import IconButton from "@mui/material/IconButton";
 import Divider from "@mui/material/Divider";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import Switch from "@mui/material/Switch";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 
 // Material Dashboard 2 React components
@@ -68,6 +70,9 @@ const converterTemperatura = (...valores) => {
 function Dashboard() {
   const [arSelecionado, setArSelecionado] = useState(null);
   const [painelAberto, setPainelAberto] = useState(false);
+  const [alteracoesPendentes, setAlteracoesPendentes] = useState(null);
+  const [valoresOriginais, setValoresOriginais] = useState(null);
+  const [enviandoAlteracoes, setEnviandoAlteracoes] = useState(false);
 
   const [ares, setAres] = useState([]);
 
@@ -151,69 +156,70 @@ function Dashboard() {
   // CONTROLE DO AR
   // =====================================================
 
-  const updateRoomState = (roomId, newAcState, newTemp) => {
-    const targetAr = ares.find((item) => obterIdSala(item.sala_cod) === roomId);
-
-    const dbId = targetAr ? targetAr.id : arSelecionado?.rawId;
-
-    // Atualização otimista da UI
-    setRooms((prev) => {
-      const updated = {
-        ...prev,
-        [roomId]: {
-          ...prev[roomId],
-          ...(newAcState !== undefined && { acState: newAcState }),
-          ...(newAcState !== undefined && { statusConhecido: !newAcState.includes("unmanaged") }),
-          ...(newTemp !== undefined && { tempC: newTemp }),
-        },
-      };
-
-      if (arSelecionado && arSelecionado.id === roomId) {
-        setArSelecionado({
-          ...arSelecionado,
-          ...updated[roomId],
-        });
-      }
-
-      return updated;
-    });
-
-    // Se temos o ID cadastrado do banco, envia o comando
-    if (dbId) {
-      const isPowerOn = newAcState
-        ? newAcState.includes("on") || (newAcState.includes("unmanaged") && newTemp !== undefined)
-        : false;
-      const temperatura = newTemp ?? arSelecionado?.tempC ?? 22;
-      const comandoNome = isPowerOn ? `ligar ${Math.round(temperatura)}` : "desligar";
-
-      fetch(`http://localhost:5000/ar-cadastrados/${dbId}/enviar-comando`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ comando_nome: comandoNome }),
-      }).catch((err) => console.error("Erro ao enviar comando para o ar:", err));
-    }
-  };
-
-  const handleTogglePower = (powerState) => {
-    if (!arSelecionado) return;
-
-    updateRoomState(arSelecionado.id, [powerState], arSelecionado.tempC ?? 22);
+  // Guarda as mudanças no modal sem enviá-las imediatamente.
+  const handleTogglePower = (ligado) => {
+    setAlteracoesPendentes((prev) => ({ ...prev, ligado }));
   };
 
   const handleAdjustTemp = (delta) => {
-    if (!arSelecionado || arSelecionado.tempC === null) {
-      return;
+    setAlteracoesPendentes((prev) => {
+      if (!prev || !Number.isFinite(prev.tempC)) return prev;
+      return { ...prev, tempC: parseFloat((prev.tempC + delta).toFixed(1)) };
+    });
+  };
+
+  const haAlteracoes =
+    Boolean(arSelecionado?.gerenciavel && alteracoesPendentes && valoresOriginais) &&
+    (alteracoesPendentes.ligado !== valoresOriginais.ligado ||
+      alteracoesPendentes.tempC !== valoresOriginais.tempC);
+
+  // Envia um único comando ao endpoint existente após o usuário confirmar.
+  const handleEnviarAlteracoes = async () => {
+    if (!arSelecionado?.gerenciavel || !haAlteracoes || enviandoAlteracoes) return;
+
+    const temperatura = alteracoesPendentes.tempC ?? arSelecionado.tempC ?? 22;
+    // O endpoint atual aceita "desligar" ou "ligar <temperatura>".
+    const comandoNome = alteracoesPendentes.ligado
+      ? `ligar ${Math.round(temperatura)}`
+      : "desligar";
+
+    setEnviandoAlteracoes(true);
+    try {
+      const response = await fetch(
+        `http://localhost:5000/ar-cadastrados/${arSelecionado.rawId}/enviar-comando`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ comando_nome: comandoNome }),
+        }
+      );
+      const resultado = await response.json();
+      if (!response.ok || resultado.status !== "ok") {
+        throw new Error(resultado.mensagem || "Não foi possível enviar as alterações.");
+      }
+
+      const atualizacao = {
+        acState: [alteracoesPendentes.ligado ? "on" : "off"],
+        tempC: temperatura,
+        statusConhecido: true,
+        gerenciavel: true,
+      };
+      setRooms((prev) => ({
+        ...prev,
+        [arSelecionado.id]: { ...prev[arSelecionado.id], ...atualizacao },
+      }));
+      setArSelecionado((prev) => (prev ? { ...prev, ...atualizacao } : prev));
+      const valoresEnviados = {
+        ligado: Boolean(alteracoesPendentes.ligado),
+        tempC: temperatura,
+      };
+      setAlteracoesPendentes(valoresEnviados);
+      setValoresOriginais(valoresEnviados);
+    } catch (err) {
+      console.error("Erro ao enviar alterações para o ar:", err);
+    } finally {
+      setEnviandoAlteracoes(false);
     }
-
-    const currentTemp = Number(arSelecionado.tempC) || 22;
-    const newTemp = parseFloat((currentTemp + delta).toFixed(1));
-    const estadoAtualizado = arSelecionado.acState?.includes("unmanaged")
-      ? ["on"]
-      : arSelecionado.acState;
-
-    updateRoomState(arSelecionado.id, estadoAtualizado, newTemp);
   };
 
   return (
@@ -225,12 +231,21 @@ function Dashboard() {
           rooms={rooms}
           onRoomClick={(id) => {
             // Garante a leitura direta do estado atualizado do rooms ao clicar na sala
-            const roomData = rooms[id] || { acState: ["unmanaged"], tempC: null };
+            const roomData = rooms[id] || {
+              acState: ["unmanaged"],
+              tempC: null,
+            };
 
             setArSelecionado({
               id,
               ...roomData,
             });
+            const valoresAtuais = {
+              ligado: roomData.acState?.includes("on") ?? false,
+              tempC: roomData.tempC,
+            };
+            setAlteracoesPendentes(valoresAtuais);
+            setValoresOriginais(valoresAtuais);
 
             setPainelAberto(true);
           }}
@@ -319,29 +334,27 @@ function Dashboard() {
                     Controles
                   </MDTypography>
 
-                  {/* Ligar / Desligar */}
-                  <MDBox mb={3}>
-                    {arSelecionado.acState?.includes("on") ? (
-                      <MDButton
-                        variant="gradient"
-                        color="error"
-                        fullWidth
-                        startIcon={<PowerSettingsNewIcon />}
-                        onClick={() => handleTogglePower("off")}
-                      >
-                        Desligar
-                      </MDButton>
-                    ) : (
-                      <MDButton
-                        variant="gradient"
-                        color="success"
-                        fullWidth
-                        startIcon={<PowerSettingsNewIcon />}
-                        onClick={() => handleTogglePower("on")}
-                      >
-                        Ligar
-                      </MDButton>
-                    )}
+                  {/* Switch para ligar/desligar; a mudança fica pendente até enviar. */}
+                  <MDBox display="flex" alignItems="center" justifyContent="center" mb={3}>
+                    <MDTypography variant="button" fontWeight="medium">
+                      Desligado
+                    </MDTypography>
+                    <FormControlLabel
+                      sx={{ mx: 1 }}
+                      control={
+                        <Switch
+                          checked={Boolean(alteracoesPendentes?.ligado)}
+                          onChange={(event) => handleTogglePower(event.target.checked)}
+                          inputProps={{
+                            "aria-label": "Ligar ou desligar o ar-condicionado",
+                          }}
+                        />
+                      }
+                      label=""
+                    />
+                    <MDTypography variant="button" fontWeight="medium">
+                      Ligado
+                    </MDTypography>
                   </MDBox>
 
                   {/* Temperatura */}
@@ -365,24 +378,36 @@ function Dashboard() {
                       <IconButton
                         color="info"
                         onClick={() => handleAdjustTemp(-1)}
-                        disabled={arSelecionado.tempC === null}
+                        disabled={!Number.isFinite(alteracoesPendentes?.tempC)}
                       >
                         <RemoveIcon />
                       </IconButton>
 
                       <MDTypography variant="h6" sx={{ minWidth: "65px", textAlign: "center" }}>
-                        {Number.isFinite(arSelecionado.tempC) ? `${arSelecionado.tempC}°C` : "--"}
+                        {Number.isFinite(alteracoesPendentes?.tempC)
+                          ? `${alteracoesPendentes.tempC}°C`
+                          : "--"}
                       </MDTypography>
 
                       <IconButton
                         color="info"
                         onClick={() => handleAdjustTemp(1)}
-                        disabled={arSelecionado.tempC === null}
+                        disabled={!Number.isFinite(alteracoesPendentes?.tempC)}
                       >
                         <AddIcon />
                       </IconButton>
                     </MDBox>
                   </MDBox>
+
+                  <MDButton
+                    variant="gradient"
+                    color="info"
+                    fullWidth
+                    disabled={!haAlteracoes || enviandoAlteracoes}
+                    onClick={handleEnviarAlteracoes}
+                  >
+                    {enviandoAlteracoes ? "Enviando..." : "Enviar Alterações"}
+                  </MDButton>
                 </>
               )}
 
@@ -441,5 +466,3 @@ function Dashboard() {
 }
 
 export default Dashboard;
-index.js
-Exibindo index.js.
