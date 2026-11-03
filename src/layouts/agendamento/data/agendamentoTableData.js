@@ -154,16 +154,29 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
         budget: <Job title={"el"} description="lkfjsdlkfjsdl" />,
         completion: <Job title={"luca"} description="precisa estudar" />,
         status: <Status online={false} />,
-        action: <MenuFlutuante />,
+        action: (
+          <MenuFlutuante
+            index={0}
+            editButton={(id) => console.log("Editando linha estática 0", id)}
+            deleteButton={(id) => console.log("Deletando linha estática 0", id)}
+          />
+        ),
       },
       {
         nome: <Author image={LogoAr} name={"tsete"} email={"sala"} />,
         budget: <Job title={"tursimo"} description="aldirar" />,
         completion: <Job title={"altruista"} description="vamo q vamos" />,
         status: <Status online={true} />,
-        action: <MenuFlutuante />,
+        action: (
+          <MenuFlutuante
+            index={1}
+            editButton={(id) => console.log("Editando linha estática 1", id)}
+            deleteButton={(id) => console.log("Deletando linha estática 1", id)}
+          />
+        ),
       },
     ],
+
     // rows: aresCondicionados.map((mm, index) => {
     //   const aparelhosPorSala = { A108: 3, 212: 1, A211: 4, A111: 2, A208: 5, A205: 6 };
 
