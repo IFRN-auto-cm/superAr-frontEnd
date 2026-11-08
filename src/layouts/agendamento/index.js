@@ -2,7 +2,7 @@
 /* eslint-disable react/function-component-definition */
 // import Grid from "@mui/material/Grid";
 
-import Grid from "@mui/material/Grid";
+// import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 
 // Material Dashboard 2 React components
@@ -28,6 +28,8 @@ import { useState, useEffect } from "react";
 import getApiAddress from "serverAddress";
 
 import { useSocket } from "context/SocketContext";
+
+import AgendamentoHeader from "./components/AgendamentoHeader";
 
 // function Agendamento() {
 //   return (
@@ -193,32 +195,7 @@ function Tables() {
     <DashboardLayout>
       <DashboardNavbar />
 
-      <MDBox pt={3} pb={3}>
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <MDBox
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-              flexWrap="wrap"
-              gap={2}
-              mb={3}
-            >
-              <MDBox>
-                <MDTypography variant="h3" fontWeight="bold">
-                  Agendamentos
-                </MDTypography>
-
-                <MDTypography variant="h6" color="text">
-                  Rotinas automáticas dos condicionadores de ar
-                </MDTypography>
-              </MDBox>
-
-              <Button>Novo agendamento</Button>
-            </MDBox>
-          </Grid>
-        </Grid>
-      </MDBox>
+      <AgendamentoHeader onNovoAgendamento={addAr} />
 
       <ArAddForm
         defaultValue={defaultValue}
