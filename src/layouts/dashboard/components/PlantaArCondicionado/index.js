@@ -1,14 +1,38 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import PropTypes from "prop-types";
-import { ReactComponent as PlantaSvg } from "assets/planta_p1_v6.svg";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
+
+// Os mapas ficam diretamente em src/assets. O catálogo é montado pelo webpack,
+// portanto novos SVGs nessa pasta aparecem sem imports individuais.
+const mapasSvg = require.context("assets", false, /\.svg$/);
+
+const rotulosMapas = [
+  "anexo_piso1.svg",
+  "anexo_piso2.svg",
+  "anexo.piso0.svg",
+  "planta_p1__.svg",
+  "planta_p1_v6.svg",
+  "planta_p1.svg",
+  "principal_piso1.svg",
+  "principal_piso2.svg",
+];
+
+export const MAPAS_DISPONIVEIS = rotulosMapas.map((id) => {
+  const modulo = mapasSvg(`./${id}`);
+  return {
+    id,
+    nome: id,
+    url: modulo.default || modulo,
+  };
+});
 
 const AC_COLORS = {
   on: { dot: "#1db954", fill: "rgba(29,185,84,0.18)" },
   off: { dot: "#e53935", fill: "rgba(229,57,53,0.18)" },
   unmanaged: { dot: "#9e9e9e", fill: "rgba(158,158,158,0.12)" },
 };
+const PROPORCAO_PLANTA_REFERENCIA = "747 / 458";
 
 function centerPercentFromRects(el, overlayEl) {
   const r = el.getBoundingClientRect();
@@ -175,41 +199,59 @@ Badge.defaultProps = {
   onClick: null,
 };
 
-export default function PlantaAr({ rooms, onRoomClick, className, style }) {
+export default function PlantaAr({
+  rooms,
+  onRoomClick,
+  className,
+  style,
+  mapaId = "planta_p1_v6.svg",
+}) {
   const wrapperRef = useRef(null);
 
   const [badges, setBadges] = useState([]);
-  const [svgRatio, setSvgRatio] = useState({ w: 1, h: 1 });
+  const [svgMarkup, setSvgMarkup] = useState("");
 
   const roomEntries = useMemo(() => Object.entries(rooms), [rooms]);
+  const mapaAtivo =
+    MAPAS_DISPONIVEIS.find((mapa) => mapa.id === mapaId) ||
+    MAPAS_DISPONIVEIS.find((mapa) => mapa.id === "planta_p1_v6.svg") ||
+    MAPAS_DISPONIVEIS[0];
 
-  // 0) Captura o viewBox para fixar aspect-ratio (1x só)
+  // Carrega o SVG selecionado como markup para manter seus IDs acessíveis
+  // ao código que colore as salas e posiciona os indicadores.
   useEffect(() => {
-    const wrapper = wrapperRef.current;
-    if (!wrapper) return;
+    if (!mapaAtivo?.url) {
+      setSvgMarkup("");
+      return undefined;
+    }
 
-    const updateRatio = () => {
-      const svg = wrapper.querySelector("svg");
-      if (!svg) return;
-      const vb = getViewBox(svg);
-      setSvgRatio({ w: vb.width || 1, h: vb.height || 1 });
-    };
+    const controller = new AbortController();
+    fetch(mapaAtivo.url, { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error(`Falha ao carregar mapa: ${response.status}`);
+        return response.text();
+      })
+      .then((markup) => setSvgMarkup(markup))
+      .catch((erro) => {
+        if (erro.name !== "AbortError") {
+          console.error(`Erro ao carregar o mapa ${mapaAtivo.id}:`, erro);
+          setSvgMarkup("");
+        }
+      });
 
-    updateRatio();
+    return () => controller.abort();
+  }, [mapaAtivo]);
 
-    const ro = new ResizeObserver(() => updateRatio());
-    ro.observe(wrapper);
-
-    return () => ro.disconnect();
-  }, []);
-
-  // 1) Aplica estilos/click nas salas e calcula badges (em %)
+  // 0) Aplica estilos/click nas salas e calcula badges (em %)
   useEffect(() => {
     const wrapper = wrapperRef.current;
     const svg = wrapper?.querySelector("svg");
     if (!svg) return;
 
-    svg.setAttribute("preserveAspectRatio", "none");
+    svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+    svg.style.width = "100%";
+    svg.style.height = "100%";
+    svg.style.display = "block";
 
     const nextBadges = [];
 
@@ -241,7 +283,7 @@ export default function PlantaAr({ rooms, onRoomClick, className, style }) {
     });
 
     setBadges(nextBadges);
-  }, [roomEntries, onRoomClick]);
+  }, [roomEntries, onRoomClick, svgMarkup]);
 
   // 2) Recalcula posições em resize (mantém badges alinhados)
   useEffect(() => {
@@ -276,7 +318,7 @@ export default function PlantaAr({ rooms, onRoomClick, className, style }) {
 
     ro.observe(wrapper);
     return () => ro.disconnect();
-  }, [roomEntries]);
+  }, [roomEntries, svgMarkup]);
 
   return (
     <MDBox className={className} style={style} sx={{ width: "100%" }}>
@@ -284,7 +326,7 @@ export default function PlantaAr({ rooms, onRoomClick, className, style }) {
         sx={{
           position: "relative",
           width: "100%",
-          aspectRatio: `${svgRatio.w} / ${svgRatio.h}`,
+          aspectRatio: PROPORCAO_PLANTA_REFERENCIA,
           maxHeight: "calc(100vh - 200px)",
           overflow: "hidden",
         }}
@@ -297,7 +339,12 @@ export default function PlantaAr({ rooms, onRoomClick, className, style }) {
             transformOrigin: "center",
           }}
         >
-          <PlantaSvg style={{ width: "100%", height: "100%", display: "block" }} />
+          {svgMarkup && (
+            <div
+              style={{ width: "100%", height: "100%" }}
+              dangerouslySetInnerHTML={{ __html: svgMarkup }}
+            />
+          )}
         </MDBox>
 
         <MDBox
@@ -330,10 +377,12 @@ PlantaAr.propTypes = {
   onRoomClick: PropTypes.func,
   className: PropTypes.string,
   style: PropTypes.object,
+  mapaId: PropTypes.string,
 };
 
 PlantaAr.defaultProps = {
   onRoomClick: null,
   className: "",
   style: {},
+  mapaId: "planta_p1_v6.svg",
 };
