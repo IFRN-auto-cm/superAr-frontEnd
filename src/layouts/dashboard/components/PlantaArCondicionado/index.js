@@ -109,7 +109,7 @@ function Badge({ id, acState, tempC, left, top, onClick }) {
         cursor: "pointer",
         userSelect: "none",
 
-        // ✅ Em xs vira "só bolinha"; em sm+ mantém o badge completo
+        // Em xs vira "só bolinha"; em sm+ mantém o badge completo
         width: {
           xs: "clamp(14px, 2.4vw, 18px)",
           sm: acState.length == 3 ? "clamp(40px, 4.8vw, 60px)" : "clamp(28px, 3.2vw, 44px)",
@@ -169,7 +169,7 @@ function Badge({ id, acState, tempC, left, top, onClick }) {
         ))}
       </MDBox>
 
-      {/* ✅ some automaticamente em xs */}
+      {/* some automaticamente em xs */}
       <MDTypography
         variant="caption"
         sx={{
