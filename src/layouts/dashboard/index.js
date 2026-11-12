@@ -291,14 +291,14 @@ function Dashboard() {
       display="flex"
       justifyContent="center"
       alignItems="center"
-      width="3.25rem"
-      height="3.25rem"
+      width="2.25rem"
+      height="2.25rem"
       bgColor="white"
       shadow="sm"
       borderRadius="50%"
       position="absolute"
       right="1rem"
-      top="5%"
+      top="8%"
       zIndex={2}
       color="dark"
       sx={{
