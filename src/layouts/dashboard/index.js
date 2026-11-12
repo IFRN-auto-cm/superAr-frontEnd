@@ -5,14 +5,18 @@
 */
 
 import { ReactComponent as Planta } from "assets/planta_p1.svg";
-import PlantaArCondicionado, { MAPAS_DISPONIVEIS } from "layouts/dashboard/components/PlantaArCondicionado";
+import PlantaArCondicionado, {
+  MAPAS_DISPONIVEIS,
+} from "layouts/dashboard/components/PlantaArCondicionado";
 
 import { useState, useEffect } from "react";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Dialog from "@mui/material/Dialog";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import Icon from "@mui/material/Icon";
 import IconButton from "@mui/material/IconButton";
 import Divider from "@mui/material/Divider";
 import CloseIcon from "@mui/icons-material/Close";
@@ -282,13 +286,40 @@ function Dashboard() {
     }
   };
 
+  const ConfigsButton = ({}) => (
+    <MDBox
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      width="3.25rem"
+      height="3.25rem"
+      bgColor="white"
+      shadow="sm"
+      borderRadius="50%"
+      position="absolute"
+      right="1rem"
+      top="5%"
+      zIndex={2}
+      color="dark"
+      sx={{
+        cursor: "pointer",
+        transform: "translateY(-50%)",
+      }}
+    >
+      {/* <Icon fontSize="small" color="inherit">
+        settings
+      </Icon> */}
+      <NavigateBeforeIcon />
+    </MDBox>
+  );
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
 
       <MDBox py={3}>
         <Grid container spacing={2} alignItems="flex-start">
-          <Grid item xs={12} md={3}>
+          {/* <Grid item xs={12} md={3}>
             <Paper
               elevation={2}
               sx={{
@@ -330,9 +361,8 @@ function Dashboard() {
                 ))}
               </Menu>
             </Paper>
-          </Grid>
-
-          <Grid item xs={12} md={9}>
+          </Grid> */}
+          <Grid item xs={12} md={12}>
             <PlantaArCondicionado
               rooms={rooms}
               mapaId={mapaSelecionado}
@@ -356,7 +386,9 @@ function Dashboard() {
 
                 setPainelAberto(true);
               }}
-            />
+            >
+              <ConfigsButton />
+            </PlantaArCondicionado>
           </Grid>
         </Grid>
       </MDBox>
