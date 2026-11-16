@@ -48,7 +48,7 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
       <MDAvatar src={image} name={sala} size="sm" />
       <MDBox ml={2} lineHeight={1}>
         <MDTypography display="block" variant="button" fontWeight="medium">
-          {name}
+          {sala}
         </MDTypography>
         <MDTypography variant="caption">{modelo}</MDTypography>
       </MDBox>
@@ -69,10 +69,10 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
 
   const Job = ({ title, description }) => (
     <MDBox lineHeight={1} textAlign="left">
-      <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
+      <MDTypography display="block" variant="caption" color="text" fontWeight="regular">
         {title}
       </MDTypography>
-      <MDTypography variant="caption">{description}</MDTypography>
+      {description && <MDTypography variant="caption">{description}</MDTypography>}
     </MDBox>
   );
 
@@ -82,7 +82,7 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
       cor = "success";
     }
     return (
-      <MDBox lineHeight={1} textAlign="left">
+      <MDBox display="flex" justifyContent="center" alignItems="center" lineHeight={1}>
         <MDBox
           color="white"
           bgColor={cor}
@@ -90,7 +90,7 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
           borderRadius="50%"
           shadow="lg"
           opacity={1}
-          p={1.5}
+          p={1.2}
         />
       </MDBox>
     );
@@ -138,45 +138,112 @@ export default function data(aresCondicionados, deleteButton, editButton, trigge
   );
 
   console.log(aresCondicionados);
+
+  const agendamentosImagem = [
+    {
+      nome: "Manhã - Labs",
+      aparelhos: 4,
+      dias: "Seg–Sex",
+      liga: "07:00",
+      desliga: "12:00",
+      ativo: true,
+    },
+    {
+      nome: "Tarde - A108",
+      aparelhos: 2,
+      dias: "Seg, Qua, Sex",
+      liga: "13:00",
+      desliga: "18:00",
+      ativo: true,
+    },
+    {
+      nome: "Aula sábado",
+      aparelhos: 1,
+      dias: "Sáb",
+      liga: "07:30",
+      desliga: "11:30",
+      ativo: false,
+    },
+  ];
+
+  const listaDados =
+    Array.isArray(aresCondicionados) && aresCondicionados.length > 0
+      ? aresCondicionados.slice(0, agendamentosImagem.length)
+      : agendamentosImagem;
+
   return {
     columns: [
-      { Header: "status", accessor: "status", align: "center" },
-      { Header: "Nome", accessor: "nome", width: "30%", align: "left" },
-      { Header: "nº aparelhos", accessor: "budget", align: "left" },
-      { Header: "dias", accessor: "completion", align: "left" },
-      { Header: "Liga", accessor: "on", align: "left" },
-      { Header: "desliga", accessor: "off", align: "left" },
-      { Header: "ações", accessor: "action", align: "center" },
+      { Header: "Status", accessor: "status", align: "center" },
+      { Header: "Nome", accessor: "nome", width: "22%", align: "left" },
+      { Header: "Condicionadores", accessor: "budget", align: "left" },
+      { Header: "Dias", accessor: "completion", align: "left" },
+      { Header: "Liga", accessor: "on", align: "center" },
+      { Header: "Desliga", accessor: "off", align: "center" },
+      { Header: "Ações", accessor: "action", align: "center" },
     ],
-    rows: [
-      {
-        nome: <Author image={LogoAr} name={"tsete"} email={"sala"} />,
-        budget: <Job title={"el"} description="lkfjsdlkfjsdl" />,
-        completion: <Job title={"luca"} description="precisa estudar" />,
-        status: <Status online={false} />,
-        action: (
-          <MenuFlutuante
-            index={0}
-            editButton={(id) => console.log("Editando linha estática 0", id)}
-            deleteButton={(id) => console.log("Deletando linha estática 0", id)}
-          />
-        ),
-      },
-      {
-        nome: <Author image={LogoAr} name={"tsete"} email={"sala"} />,
-        budget: <Job title={"tursimo"} description="aldirar" />,
-        completion: <Job title={"altruista"} description="vamo q vamos" />,
-        status: <Status online={true} />,
-        action: (
-          <MenuFlutuante
-            index={1}
-            editButton={(id) => console.log("Editando linha estática 1", id)}
-            deleteButton={(id) => console.log("Deletando linha estática 1", id)}
-          />
-        ),
-      },
-    ],
+    rows: listaDados.map((mm, index) => {
+      const ref = agendamentosImagem[index] || {};
+      const nomeExibicao = mm.nome || ref.nome || mm.sala;
+      const qtd = Number(mm.aparelhos ?? ref.aparelhos) || 0;
+      const textoAparelhos = `${qtd} ${qtd === 1 ? "aparelho" : "aparelhos"}`;
+      const textoDias = mm.dias || ref.dias || "Não definido";
+      const horaLiga = mm.liga || ref.liga || "--:--";
+      const horaDesliga = mm.desliga || ref.desliga || "--:--";
+      const estaOnline =
+        mm.status === "ligado" ? true : mm.status === "desligado" ? false : Boolean(ref.ativo);
 
+      return {
+        status: <Status online={estaOnline} />,
+        nome: <Job title={nomeExibicao} description="" />,
+        budget: <Job title={textoAparelhos} description="" />,
+        completion: <Job title={textoDias} description="" />,
+        on: (
+          <MDTypography variant="caption" color="text" fontWeight="regular">
+            {horaLiga}
+          </MDTypography>
+        ),
+        off: (
+          <MDTypography variant="caption" color="text" fontWeight="regular">
+            {horaDesliga}
+          </MDTypography>
+        ),
+        action: (
+          <MDBox display="flex" alignItems="center" justifyContent="center" gap={0.5}>
+            <MDTypography
+              component="a"
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                editButton(mm.id ?? index + 1);
+              }}
+              variant="caption"
+              color="text"
+              fontWeight="regular"
+              sx={{ cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
+            >
+              Editar
+            </MDTypography>
+            <MDTypography variant="caption" color="text">
+              /
+            </MDTypography>
+            <MDTypography
+              component="a"
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                deleteButton(index);
+              }}
+              variant="caption"
+              color="text"
+              fontWeight="regular"
+              sx={{ cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
+            >
+              Excluir
+            </MDTypography>
+          </MDBox>
+        ),
+      };
+    }),
     // rows: aresCondicionados.map((mm, index) => {
     //   const aparelhosPorSala = { A108: 3, 212: 1, A211: 4, A111: 2, A208: 5, A205: 6 };
 
