@@ -77,8 +77,6 @@ const converterTemperatura = (...valores) => {
   return null;
 };
 
-<<<<<<< HEAD
-=======
 const temAtuadorCadastrado = (atuador) => {
   const valor = String(atuador ?? "")
     .trim()
@@ -86,7 +84,6 @@ const temAtuadorCadastrado = (atuador) => {
   return !["", "null", "none", "desconhecido", "não cadastrado", "nao cadastrado"].includes(valor);
 };
 
->>>>>>> alteraçao_ligar_desligar_no_modal_e_botaonavegaçao_entre_maps
 function Dashboard() {
   const [arSelecionado, setArSelecionado] = useState(null);
   const [painelAberto, setPainelAberto] = useState(false);
@@ -98,11 +95,6 @@ function Dashboard() {
   const [mapaSelecionado, setMapaSelecionado] = useState("planta_p1_v6.svg");
   const [sidenavMapasAberto, setSidenavMapasAberto] = useState(false);
 
-<<<<<<< HEAD
-  const [ares, setAres] = useState([]);
-
-=======
->>>>>>> alteraçao_ligar_desligar_no_modal_e_botaonavegaçao_entre_maps
   const [rooms, setRooms] = useState({
     sala09: { acState: ["on"], tempC: 23.4 },
     sala02: { acState: ["off", "on", "on"], tempC: 27.1 },
@@ -128,125 +120,10 @@ function Dashboard() {
       .then((data) => {
         if (data.status === "ok" && Array.isArray(data.dados)) {
           setAres(data.dados);
-<<<<<<< HEAD
 
           setRooms((prevRooms) => {
             const updatedRooms = { ...prevRooms };
 
-            data.dados.forEach((ar) => {
-              // Converte o código do banco para o ID da sala existente na planta.
-              const roomId = obterIdSala(ar.sala_cod);
-              if (!roomId) {
-                console.warn("Código de sala sem correspondência na planta:", ar.sala_cod);
-                return;
-              }
-
-              // Status desconhecido não torna um aparelho cadastrado não gerenciável.
-              const status = String(ar.status ?? "")
-                .trim()
-                .toLowerCase();
-              let acState = ["unmanaged"];
-              if (status === "ligado" || status === "on") {
-                acState = ["on"];
-              } else if (status === "desligado" || status === "off") {
-                acState = ["off"];
-              }
-
-              const tempVal = converterTemperatura(
-                ar.temperatura_medida,
-                ar.temperatura_setpoint,
-                ar.temperatura_referencia
-              );
-
-              updatedRooms[roomId] = {
-                acState,
-                tempC: tempVal,
-                rawId: ar.id,
-                gerenciavel: true,
-                statusConhecido: acState[0] !== "unmanaged",
-                salaCod: ar.sala_cod,
-                salaNome: ar.sala_nome,
-                nomeAr: ar.nome_ar,
-                marca: ar.marca,
-                modelo: ar.modelo,
-                atuador: ar.atuador,
-              };
-            });
-
-            return updatedRooms;
-          });
-        }
-      })
-      .catch((err) => console.error("Erro ao buscar ares cadastrados:", err));
-  }, []);
-
-  // =====================================================
-  // CONTROLE DO AR
-  // =====================================================
-
-  const updateRoomState = (roomId, newAcState, newTemp) => {
-    const targetAr = ares.find((item) => obterIdSala(item.sala_cod) === roomId);
-
-    const dbId = targetAr ? targetAr.id : arSelecionado?.rawId;
-
-    // Atualização otimista da UI
-    setRooms((prev) => {
-      const updated = {
-        ...prev,
-        [roomId]: {
-          ...prev[roomId],
-          ...(newAcState !== undefined && { acState: newAcState }),
-          ...(newAcState !== undefined && { statusConhecido: !newAcState.includes("unmanaged") }),
-          ...(newTemp !== undefined && { tempC: newTemp }),
-        },
-      };
-=======
->>>>>>> alteraçao_ligar_desligar_no_modal_e_botaonavegaçao_entre_maps
-
-          setRooms((prevRooms) => {
-            const updatedRooms = { ...prevRooms };
-
-<<<<<<< HEAD
-      return updated;
-    });
-
-    // Se temos o ID cadastrado do banco, envia o comando
-    if (dbId) {
-      const isPowerOn = newAcState
-        ? newAcState.includes("on") || (newAcState.includes("unmanaged") && newTemp !== undefined)
-        : false;
-      const temperatura = newTemp ?? arSelecionado?.tempC ?? 22;
-      const comandoNome = isPowerOn ? `ligar ${Math.round(temperatura)}` : "desligar";
-
-      fetch(`http://localhost:5000/ar-cadastrados/${dbId}/enviar-comando`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ comando_nome: comandoNome }),
-      }).catch((err) => console.error("Erro ao enviar comando para o ar:", err));
-    }
-  };
-
-  const handleTogglePower = (powerState) => {
-    if (!arSelecionado) return;
-
-    updateRoomState(arSelecionado.id, [powerState], arSelecionado.tempC ?? 22);
-  };
-
-  const handleAdjustTemp = (delta) => {
-    if (!arSelecionado || arSelecionado.tempC === null) {
-      return;
-    }
-
-    const currentTemp = Number(arSelecionado.tempC) || 22;
-    const newTemp = parseFloat((currentTemp + delta).toFixed(1));
-    const estadoAtualizado = arSelecionado.acState?.includes("unmanaged")
-      ? ["on"]
-      : arSelecionado.acState;
-
-    updateRoomState(arSelecionado.id, estadoAtualizado, newTemp);
-=======
             data.dados.forEach((ar) => {
               // Converte o código do banco para o ID da sala existente na planta.
               const roomId = obterIdSala(ar.sala_cod);
@@ -353,7 +230,6 @@ function Dashboard() {
       if (!prev || !Number.isFinite(prev.tempC)) return prev;
       return { ...prev, tempC: parseFloat((prev.tempC + delta).toFixed(1)) };
     });
->>>>>>> alteraçao_ligar_desligar_no_modal_e_botaonavegaçao_entre_maps
   };
 
   const haAlteracoes =
@@ -439,18 +315,6 @@ function Dashboard() {
       <DashboardNavbar />
 
       <MDBox py={3}>
-<<<<<<< HEAD
-        <PlantaArCondicionado
-          rooms={rooms}
-          onRoomClick={(id) => {
-            // Garante a leitura direta do estado atualizado do rooms ao clicar na sala
-            const roomData = rooms[id] || { acState: ["unmanaged"], tempC: null };
-
-            setArSelecionado({
-              id,
-              ...roomData,
-            });
-=======
         <Grid container spacing={2} alignItems="flex-start">
           <Grid item xs={12} md={12}>
             <PlantaArCondicionado
@@ -462,7 +326,6 @@ function Dashboard() {
                   acState: ["unmanaged"],
                   tempC: null,
                 };
->>>>>>> alteraçao_ligar_desligar_no_modal_e_botaonavegaçao_entre_maps
 
                 setArSelecionado({
                   id,
@@ -608,17 +471,6 @@ function Dashboard() {
                     </MDTypography>
                   )}
 
-<<<<<<< HEAD
-                  {/* Ligar / Desligar */}
-                  <MDBox mb={3}>
-                    {arSelecionado.acState?.includes("on") ? (
-                      <MDButton
-                        variant="gradient"
-                        color="error"
-                        fullWidth
-                        startIcon={<PowerSettingsNewIcon />}
-                        onClick={() => handleTogglePower("off")}
-=======
                   {/* Smooth Toggle; a mudança fica pendente até o envio ser confirmado. */}
                   <MDBox display="flex" alignItems="center" justifyContent="center" mb={1}>
                     <MDBox textAlign="center">
@@ -655,7 +507,6 @@ function Dashboard() {
                             },
                           };
                         }}
->>>>>>> alteraçao_ligar_desligar_no_modal_e_botaonavegaçao_entre_maps
                       >
                         <MDTypography
                           variant="button"
@@ -759,19 +610,6 @@ function Dashboard() {
                 sx={{
                   p: 2,
                   borderRadius: 2,
-<<<<<<< HEAD
-                  backgroundColor: arSelecionado.acState?.includes("on")
-                    ? "rgba(46, 125, 50, 0.12)"
-                    : arSelecionado.gerenciavel && !arSelecionado.statusConhecido
-                    ? "rgba(237, 108, 2, 0.12)"
-                    : "rgba(211, 47, 47, 0.12)",
-                  border: "1px solid",
-                  borderColor: arSelecionado.acState?.includes("on")
-                    ? "success.main"
-                    : arSelecionado.gerenciavel && !arSelecionado.statusConhecido
-                    ? "warning.main"
-                    : "error.main",
-=======
                   backgroundColor:
                     arSelecionado.online === false && arSelecionado.gerenciavel
                       ? "rgba(158, 158, 158, 0.12)"
@@ -789,19 +627,14 @@ function Dashboard() {
                       : arSelecionado.gerenciavel && !arSelecionado.statusConhecido
                       ? "warning.main"
                       : "error.main",
->>>>>>> alteraçao_ligar_desligar_no_modal_e_botaonavegaçao_entre_maps
                 }}
               >
                 <MDTypography
                   variant="h6"
                   color={
-<<<<<<< HEAD
-                    arSelecionado.acState?.includes("on")
-=======
                     arSelecionado.online === false && arSelecionado.gerenciavel
                       ? "text"
                       : arSelecionado.acState?.includes("on")
->>>>>>> alteraçao_ligar_desligar_no_modal_e_botaonavegaçao_entre_maps
                       ? "success"
                       : arSelecionado.gerenciavel && !arSelecionado.statusConhecido
                       ? "warning"
@@ -829,9 +662,3 @@ function Dashboard() {
 }
 
 export default Dashboard;
-<<<<<<< HEAD
-// index.js
-// Exibindo index.js.
-=======
-
->>>>>>> alteraçao_ligar_desligar_no_modal_e_botaonavegaçao_entre_maps
