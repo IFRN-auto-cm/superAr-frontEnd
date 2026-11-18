@@ -5,24 +5,30 @@
 */
 
 import { ReactComponent as Planta } from "assets/planta_p1.svg";
-import PlantaArCondicionado, { MAPAS_DISPONIVEIS } from "layouts/dashboard/components/PlantaArCondicionado";
+import PlantaArCondicionado, {
+  MAPAS_DISPONIVEIS,
+} from "layouts/dashboard/components/PlantaArCondicionado";
 
 import { useState, useEffect } from "react";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Dialog from "@mui/material/Dialog";
-import FormControlLabel from "@mui/material/FormControlLabel";
+import Icon from "@mui/material/Icon";
 import IconButton from "@mui/material/IconButton";
 import Divider from "@mui/material/Divider";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-import Switch from "@mui/material/Switch";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
+import Drawer from "@mui/material/Drawer";
+import List from "@mui/material/List";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 
 // Material Dashboard 2 React components
@@ -87,9 +93,7 @@ function Dashboard() {
 
   const [ares, setAres] = useState([]);
   const [mapaSelecionado, setMapaSelecionado] = useState("planta_p1_v6.svg");
-  const [anchorMenuMapas, setAnchorMenuMapas] = useState(null);
-  const nomeMapaSelecionado =
-    MAPAS_DISPONIVEIS.find((mapa) => mapa.id === mapaSelecionado)?.nome || "Selecionar mapa";
+  const [sidenavMapasAberto, setSidenavMapasAberto] = useState(false);
 
   const [rooms, setRooms] = useState({
     sala09: { acState: ["on"], tempC: 23.4 },
@@ -282,57 +286,37 @@ function Dashboard() {
     }
   };
 
+  // Mantém o botão da planta como ponto de abertura do sidenav de mapas.
+  const ConfigsButton = () => (
+    <IconButton
+      aria-label="Abrir mapas dos laboratórios"
+      aria-haspopup="true"
+      aria-expanded={sidenavMapasAberto}
+      onClick={() => setSidenavMapasAberto(true)}
+      sx={(theme) => ({
+        position: "fixed",
+        top: "20%",
+        right: 24,
+        zIndex: theme.zIndex.drawer - 1,
+        width: 48,
+        height: 48,
+        bgcolor: "background.paper",
+        color: "text.primary",
+        boxShadow: 2,
+        "&:hover": { bgcolor: "background.paper" },
+      })}
+    >
+      <NavigateBeforeIcon />
+    </IconButton>
+  );
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
 
       <MDBox py={3}>
         <Grid container spacing={2} alignItems="flex-start">
-          <Grid item xs={12} md={3}>
-            <Paper
-              elevation={2}
-              sx={{
-                p: 1.5,
-                borderRadius: 2,
-                maxHeight: { md: "calc(100vh - 180px)" },
-                overflowY: "auto",
-              }}
-            >
-              <MDTypography variant="h6" px={1} py={1}>
-                Mapa do laboratório
-              </MDTypography>
-              <Button
-                fullWidth
-                variant="contained"
-                onClick={(event) => setAnchorMenuMapas(event.currentTarget)}
-                aria-label="Abrir lista de mapas dos laboratórios"
-                aria-haspopup="menu"
-                aria-expanded={Boolean(anchorMenuMapas)}
-              >
-                {nomeMapaSelecionado}
-              </Button>
-              <Menu
-                anchorEl={anchorMenuMapas}
-                open={Boolean(anchorMenuMapas)}
-                onClose={() => setAnchorMenuMapas(null)}
-              >
-                {MAPAS_DISPONIVEIS.map((mapa) => (
-                  <MenuItem
-                    key={mapa.id}
-                    selected={mapaSelecionado === mapa.id}
-                    onClick={() => {
-                      setMapaSelecionado(mapa.id);
-                      setAnchorMenuMapas(null);
-                    }}
-                  >
-                    {mapa.nome}
-                  </MenuItem>
-                ))}
-              </Menu>
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} md={9}>
+          <Grid item xs={12} md={12}>
             <PlantaArCondicionado
               rooms={rooms}
               mapaId={mapaSelecionado}
@@ -359,6 +343,42 @@ function Dashboard() {
             />
           </Grid>
         </Grid>
+
+        <ConfigsButton />
+
+        <Drawer
+          anchor="right"
+          open={sidenavMapasAberto}
+          onClose={() => setSidenavMapasAberto(false)}
+          PaperProps={{
+            sx: { width: { xs: "85vw", sm: 340 }, maxWidth: 380, p: 2 },
+          }}
+        >
+          <MDBox display="flex" alignItems="center" justifyContent="space-between" mb={1}>
+            <MDTypography variant="h6">Mapas dos laboratórios/salas</MDTypography>
+            <IconButton
+              aria-label="Fechar mapas dos laboratórios/salas"
+              onClick={() => setSidenavMapasAberto(false)}
+            >
+              <CloseIcon />
+            </IconButton>
+          </MDBox>
+          <Divider />
+          <List>
+            {MAPAS_DISPONIVEIS.map((mapa) => (
+              <ListItemButton
+                key={mapa.id}
+                selected={mapaSelecionado === mapa.id}
+                onClick={() => {
+                  setMapaSelecionado(mapa.id);
+                  setSidenavMapasAberto(false);
+                }}
+              >
+                <ListItemText primary={mapa.nome} />
+              </ListItemButton>
+            ))}
+          </List>
+        </Drawer>
       </MDBox>
 
       {/* MODAL */}
@@ -451,29 +471,71 @@ function Dashboard() {
                     </MDTypography>
                   )}
 
-                  {/* Switch para ligar/desligar; a mudança fica pendente até enviar. */}
-                  <MDBox display="flex" alignItems="center" justifyContent="center" mb={3}>
-                    <MDTypography variant="button" fontWeight="medium">
-                      Desligado
-                    </MDTypography>
-                    <FormControlLabel
-                      sx={{ mx: 1 }}
-                      control={
-                        <Switch
-                          checked={Boolean(alteracoesPendentes?.ligado)}
-                          onChange={(event) => handleTogglePower(event.target.checked)}
-                          disabled={!arSelecionado.atuadorDisponivel}
-                          inputProps={{
-                            "aria-label": "Ligar ou desligar o ar-condicionado",
-                          }}
+                  {/* Smooth Toggle; a mudança fica pendente até o envio ser confirmado. */}
+                  <MDBox display="flex" alignItems="center" justifyContent="center" mb={1}>
+                    <MDBox textAlign="center">
+                      <MDTypography variant="caption" display="block" mb={1}></MDTypography>
+                      <MDBox
+                        component="button"
+                        type="button"
+                        role="switch"
+                        aria-checked={Boolean(alteracoesPendentes?.ligado)}
+                        aria-label="Smooth Toggle para ligar ou desligar"
+                        disabled={!arSelecionado.atuadorDisponivel}
+                        onClick={() => handleTogglePower(!Boolean(alteracoesPendentes?.ligado))}
+                        sx={(theme) => {
+                          const ligado = Boolean(alteracoesPendentes?.ligado);
+                          return {
+                            position: "relative",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: ligado ? "flex-start" : "flex-end",
+                            width: 148,
+                            height: 44,
+                            px: ligado ? 1.5 : 1.25,
+                            border: 0,
+                            borderRadius: "999px",
+                            bgcolor: ligado ? theme.palette.success.main : theme.palette.grey[500],
+                            color: "#fff",
+                            font: "inherit",
+                            cursor: "pointer",
+                            transition: "background-color 220ms ease",
+                            "&:disabled": { opacity: 0.55, cursor: "not-allowed" },
+                            "&:focus-visible": {
+                              outline: `2px solid ${theme.palette.info.main}`,
+                              outlineOffset: 3,
+                            },
+                          };
+                        }}
+                      >
+                        <MDTypography
+                          variant="button"
+                          fontWeight="bold"
+                          color="white"
+                          sx={{ zIndex: 1 }}
+                        >
+                          {alteracoesPendentes?.ligado ? "Ligado" : "Desligado"}
+                        </MDTypography>
+                        <MDBox
+                          sx={(theme) => ({
+                            position: "absolute",
+                            top: 4,
+                            left: alteracoesPendentes?.ligado ? "calc(100% - 40px)" : 4,
+                            width: 36,
+                            height: 36,
+                            borderRadius: "50%",
+                            bgcolor: "white",
+                            boxShadow: theme.shadows[2],
+                            transition: "left 220ms cubic-bezier(0.4, 0, 0.2, 1)",
+                          })}
                         />
-                      }
-                      label=""
-                    />
-                    <MDTypography variant="button" fontWeight="medium">
-                      Ligado
-                    </MDTypography>
+                      </MDBox>
+                    </MDBox>
                   </MDBox>
+                  <MDTypography variant="caption" display="block" textAlign="center" mb={3}>
+                    As alterações só seram enviadas se clicar no botão &quot;Enviar
+                    Alterações&quot;.
+                  </MDTypography>
 
                   {/* Temperatura */}
                   <MDBox

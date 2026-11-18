@@ -81,6 +81,7 @@ function bboxCenter(el) {
 
 function Badge({ id, acState, tempC, left, top, onClick }) {
   let cfg = [];
+
   for (const state of acState) {
     cfg.push(AC_COLORS[state] ?? AC_COLORS.unmanaged);
   }
@@ -109,7 +110,7 @@ function Badge({ id, acState, tempC, left, top, onClick }) {
         cursor: "pointer",
         userSelect: "none",
 
-        // ✅ Em xs vira "só bolinha"; em sm+ mantém o badge completo
+        // Em xs vira "só bolinha"; em sm+ mantém o badge completo
         width: {
           xs: "clamp(14px, 2.4vw, 18px)",
           sm: acState.length == 3 ? "clamp(40px, 4.8vw, 60px)" : "clamp(28px, 3.2vw, 44px)",
@@ -169,7 +170,7 @@ function Badge({ id, acState, tempC, left, top, onClick }) {
         ))}
       </MDBox>
 
-      {/* ✅ some automaticamente em xs */}
+      {/* some automaticamente em xs */}
       <MDTypography
         variant="caption"
         sx={{
@@ -205,6 +206,7 @@ export default function PlantaAr({
   className,
   style,
   mapaId = "planta_p1_v6.svg",
+  children,
 }) {
   const wrapperRef = useRef(null);
 
@@ -359,6 +361,7 @@ export default function PlantaAr({
             <Badge key={b.id} {...b} onClick={(roomId) => onRoomClick?.(roomId, rooms[roomId])} />
           ))}
         </MDBox>
+        {children}
       </MDBox>
     </MDBox>
   );
@@ -378,6 +381,7 @@ PlantaAr.propTypes = {
   className: PropTypes.string,
   style: PropTypes.object,
   mapaId: PropTypes.string,
+  children: PropTypes.node,
 };
 
 PlantaAr.defaultProps = {
@@ -385,4 +389,5 @@ PlantaAr.defaultProps = {
   className: "",
   style: {},
   mapaId: "planta_p1_v6.svg",
+  children: null,
 };
