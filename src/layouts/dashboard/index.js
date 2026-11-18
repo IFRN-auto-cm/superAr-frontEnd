@@ -5,18 +5,30 @@
 */
 
 import { ReactComponent as Planta } from "assets/planta_p1.svg";
-import PlantaArCondicionado from "layouts/dashboard/components/PlantaArCondicionado";
+import PlantaArCondicionado, {
+  MAPAS_DISPONIVEIS,
+} from "layouts/dashboard/components/PlantaArCondicionado";
 
 import { useState, useEffect } from "react";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Dialog from "@mui/material/Dialog";
+import Icon from "@mui/material/Icon";
 import IconButton from "@mui/material/IconButton";
 import Divider from "@mui/material/Divider";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import Button from "@mui/material/Button";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Paper from "@mui/material/Paper";
+import Drawer from "@mui/material/Drawer";
+import List from "@mui/material/List";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 
 // Material Dashboard 2 React components
@@ -65,12 +77,32 @@ const converterTemperatura = (...valores) => {
   return null;
 };
 
+<<<<<<< HEAD
+=======
+const temAtuadorCadastrado = (atuador) => {
+  const valor = String(atuador ?? "")
+    .trim()
+    .toLowerCase();
+  return !["", "null", "none", "desconhecido", "não cadastrado", "nao cadastrado"].includes(valor);
+};
+
+>>>>>>> alteraçao_ligar_desligar_no_modal_e_botaonavegaçao_entre_maps
 function Dashboard() {
   const [arSelecionado, setArSelecionado] = useState(null);
   const [painelAberto, setPainelAberto] = useState(false);
+  const [alteracoesPendentes, setAlteracoesPendentes] = useState(null);
+  const [valoresOriginais, setValoresOriginais] = useState(null);
+  const [enviandoAlteracoes, setEnviandoAlteracoes] = useState(false);
 
   const [ares, setAres] = useState([]);
+  const [mapaSelecionado, setMapaSelecionado] = useState("planta_p1_v6.svg");
+  const [sidenavMapasAberto, setSidenavMapasAberto] = useState(false);
 
+<<<<<<< HEAD
+  const [ares, setAres] = useState([]);
+
+=======
+>>>>>>> alteraçao_ligar_desligar_no_modal_e_botaonavegaçao_entre_maps
   const [rooms, setRooms] = useState({
     sala09: { acState: ["on"], tempC: 23.4 },
     sala02: { acState: ["off", "on", "on"], tempC: 27.1 },
@@ -96,6 +128,7 @@ function Dashboard() {
       .then((data) => {
         if (data.status === "ok" && Array.isArray(data.dados)) {
           setAres(data.dados);
+<<<<<<< HEAD
 
           setRooms((prevRooms) => {
             const updatedRooms = { ...prevRooms };
@@ -167,14 +200,13 @@ function Dashboard() {
           ...(newTemp !== undefined && { tempC: newTemp }),
         },
       };
+=======
+>>>>>>> alteraçao_ligar_desligar_no_modal_e_botaonavegaçao_entre_maps
 
-      if (arSelecionado && arSelecionado.id === roomId) {
-        setArSelecionado({
-          ...arSelecionado,
-          ...updated[roomId],
-        });
-      }
+          setRooms((prevRooms) => {
+            const updatedRooms = { ...prevRooms };
 
+<<<<<<< HEAD
       return updated;
     });
 
@@ -214,13 +246,200 @@ function Dashboard() {
       : arSelecionado.acState;
 
     updateRoomState(arSelecionado.id, estadoAtualizado, newTemp);
+=======
+            data.dados.forEach((ar) => {
+              // Converte o código do banco para o ID da sala existente na planta.
+              const roomId = obterIdSala(ar.sala_cod);
+              if (!roomId) {
+                console.warn("Código de sala sem correspondência na planta:", ar.sala_cod);
+                return;
+              }
+
+              // Até consultar a disponibilidade, o estado fica neutro/cinza:
+              // o status de power do GET de cadastro pode ser uma leitura antiga.
+              const acState = ["unmanaged"];
+
+              const tempVal = converterTemperatura(
+                ar.temperatura_medida,
+                ar.temperatura_setpoint,
+                ar.temperatura_referencia
+              );
+
+              updatedRooms[roomId] = {
+                acState,
+                tempC: tempVal,
+                rawId: ar.id,
+                gerenciavel: true,
+                statusConhecido: acState[0] !== "unmanaged",
+                online: false,
+                salaCod: ar.sala_cod,
+                salaNome: ar.sala_nome,
+                nomeAr: ar.nome_ar,
+                marca: ar.marca,
+                modelo: ar.modelo,
+                atuador: ar.atuador,
+                atuadorDisponivel: temAtuadorCadastrado(ar.atuador),
+              };
+            });
+
+            return updatedRooms;
+          });
+        }
+      })
+      .catch((err) => console.error("Erro ao buscar ares cadastrados:", err));
+  }, []);
+
+  // Consulta periodicamente online/offline e o estado real (power) no backend.
+  useEffect(() => {
+    if (ares.length === 0) return undefined;
+
+    let cancelado = false;
+    const atualizarDisponibilidade = async () => {
+      await Promise.all(
+        ares.map(async (ar) => {
+          const roomId = obterIdSala(ar.sala_cod);
+          if (!roomId) return;
+
+          try {
+            const response = await fetch(`http://localhost:5000/status-ar/${ar.id}`);
+            const data = await response.json();
+            if (!response.ok || data.status !== "ok" || cancelado) return;
+
+            const resultado = data.resultado;
+            const online = resultado?.online === true;
+            const power = resultado?.power;
+            const acState =
+              online && typeof power === "boolean" ? [power ? "on" : "off"] : ["unmanaged"];
+            const atualizacao = {
+              online,
+              acState,
+              statusConhecido: online && typeof power === "boolean",
+              ...(online && Number.isFinite(resultado?.temperatura_medida)
+                ? { tempC: resultado.temperatura_medida }
+                : {}),
+            };
+
+            setRooms((prev) => ({
+              ...prev,
+              [roomId]: { ...prev[roomId], ...atualizacao },
+            }));
+            setArSelecionado((prev) => (prev?.id === roomId ? { ...prev, ...atualizacao } : prev));
+          } catch (err) {
+            console.error(`Erro ao consultar disponibilidade do aparelho ${ar.id}:`, err);
+          }
+        })
+      );
+    };
+
+    atualizarDisponibilidade();
+    const intervalo = window.setInterval(atualizarDisponibilidade, 10000);
+    return () => {
+      cancelado = true;
+      window.clearInterval(intervalo);
+    };
+  }, [ares]);
+
+  // =====================================================
+  // CONTROLE DO AR
+  // =====================================================
+
+  // Guarda as mudanças no modal sem enviá-las imediatamente.
+  const handleTogglePower = (ligado) => {
+    setAlteracoesPendentes((prev) => ({ ...prev, ligado }));
   };
+
+  const handleAdjustTemp = (delta) => {
+    setAlteracoesPendentes((prev) => {
+      if (!prev || !Number.isFinite(prev.tempC)) return prev;
+      return { ...prev, tempC: parseFloat((prev.tempC + delta).toFixed(1)) };
+    });
+>>>>>>> alteraçao_ligar_desligar_no_modal_e_botaonavegaçao_entre_maps
+  };
+
+  const haAlteracoes =
+    Boolean(arSelecionado?.gerenciavel && alteracoesPendentes && valoresOriginais) &&
+    (alteracoesPendentes.ligado !== valoresOriginais.ligado ||
+      alteracoesPendentes.tempC !== valoresOriginais.tempC);
+
+  // Envia um único comando ao endpoint existente após o usuário confirmar.
+  const handleEnviarAlteracoes = async () => {
+    if (!arSelecionado?.gerenciavel || !haAlteracoes || enviandoAlteracoes) return;
+
+    const temperatura = alteracoesPendentes.tempC ?? arSelecionado.tempC ?? 22;
+    // O endpoint atual aceita "desligar" ou "ligar <temperatura>".
+    const comandoNome = alteracoesPendentes.ligado
+      ? `ligar ${Math.round(temperatura)}`
+      : "desligar";
+
+    setEnviandoAlteracoes(true);
+    try {
+      const response = await fetch(
+        `http://localhost:5000/ar-cadastrados/${arSelecionado.rawId}/enviar-comando`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ comando_nome: comandoNome }),
+        }
+      );
+      const resultado = await response.json();
+      if (!response.ok || resultado.status !== "ok") {
+        throw new Error(resultado.mensagem || "Não foi possível enviar as alterações.");
+      }
+
+      const atualizacao = {
+        acState: [alteracoesPendentes.ligado ? "on" : "off"],
+        tempC: temperatura,
+        statusConhecido: true,
+        gerenciavel: true,
+      };
+      setRooms((prev) => ({
+        ...prev,
+        [arSelecionado.id]: { ...prev[arSelecionado.id], ...atualizacao },
+      }));
+      setArSelecionado((prev) => (prev ? { ...prev, ...atualizacao } : prev));
+      const valoresEnviados = {
+        ligado: Boolean(alteracoesPendentes.ligado),
+        tempC: temperatura,
+      };
+      setAlteracoesPendentes(valoresEnviados);
+      setValoresOriginais(valoresEnviados);
+    } catch (err) {
+      console.error("Erro ao enviar alterações para o ar:", err);
+    } finally {
+      setEnviandoAlteracoes(false);
+    }
+  };
+
+  // Mantém o botão da planta como ponto de abertura do sidenav de mapas.
+  const ConfigsButton = () => (
+    <IconButton
+      aria-label="Abrir mapas dos laboratórios"
+      aria-haspopup="true"
+      aria-expanded={sidenavMapasAberto}
+      onClick={() => setSidenavMapasAberto(true)}
+      sx={(theme) => ({
+        position: "fixed",
+        top: "20%",
+        right: 24,
+        zIndex: theme.zIndex.drawer - 1,
+        width: 48,
+        height: 48,
+        bgcolor: "background.paper",
+        color: "text.primary",
+        boxShadow: 2,
+        "&:hover": { bgcolor: "background.paper" },
+      })}
+    >
+      <NavigateBeforeIcon />
+    </IconButton>
+  );
 
   return (
     <DashboardLayout>
       <DashboardNavbar />
 
       <MDBox py={3}>
+<<<<<<< HEAD
         <PlantaArCondicionado
           rooms={rooms}
           onRoomClick={(id) => {
@@ -231,10 +450,72 @@ function Dashboard() {
               id,
               ...roomData,
             });
+=======
+        <Grid container spacing={2} alignItems="flex-start">
+          <Grid item xs={12} md={12}>
+            <PlantaArCondicionado
+              rooms={rooms}
+              mapaId={mapaSelecionado}
+              onRoomClick={(id) => {
+                // Garante a leitura direta do estado atualizado do rooms ao clicar na sala
+                const roomData = rooms[id] || {
+                  acState: ["unmanaged"],
+                  tempC: null,
+                };
+>>>>>>> alteraçao_ligar_desligar_no_modal_e_botaonavegaçao_entre_maps
 
-            setPainelAberto(true);
+                setArSelecionado({
+                  id,
+                  ...roomData,
+                });
+                const valoresAtuais = {
+                  ligado: roomData.acState?.includes("on") ?? false,
+                  tempC: roomData.tempC,
+                };
+                setAlteracoesPendentes(valoresAtuais);
+                setValoresOriginais(valoresAtuais);
+
+                setPainelAberto(true);
+              }}
+            />
+          </Grid>
+        </Grid>
+
+        <ConfigsButton />
+
+        <Drawer
+          anchor="right"
+          open={sidenavMapasAberto}
+          onClose={() => setSidenavMapasAberto(false)}
+          PaperProps={{
+            sx: { width: { xs: "85vw", sm: 340 }, maxWidth: 380, p: 2 },
           }}
-        />
+        >
+          <MDBox display="flex" alignItems="center" justifyContent="space-between" mb={1}>
+            <MDTypography variant="h6">Mapas dos laboratórios/salas</MDTypography>
+            <IconButton
+              aria-label="Fechar mapas dos laboratórios/salas"
+              onClick={() => setSidenavMapasAberto(false)}
+            >
+              <CloseIcon />
+            </IconButton>
+          </MDBox>
+          <Divider />
+          <List>
+            {MAPAS_DISPONIVEIS.map((mapa) => (
+              <ListItemButton
+                key={mapa.id}
+                selected={mapaSelecionado === mapa.id}
+                onClick={() => {
+                  setMapaSelecionado(mapa.id);
+                  setSidenavMapasAberto(false);
+                }}
+              >
+                <ListItemText primary={mapa.nome} />
+              </ListItemButton>
+            ))}
+          </List>
+        </Drawer>
       </MDBox>
 
       {/* MODAL */}
@@ -301,7 +582,9 @@ function Dashboard() {
 
               <MDTypography variant="body2" mb={2} sx={{ whiteSpace: "nowrap" }}>
                 <strong>Estado:</strong>{" "}
-                {arSelecionado.acState?.includes("on")
+                {arSelecionado.online === false && arSelecionado.gerenciavel
+                  ? "Offline"
+                  : arSelecionado.acState?.includes("on")
                   ? "Ligado"
                   : arSelecionado.acState?.includes("off")
                   ? "Desligado"
@@ -318,7 +601,14 @@ function Dashboard() {
                   <MDTypography variant="h6" mb={2} noWrap>
                     Controles
                   </MDTypography>
+                  {!arSelecionado.atuadorDisponivel && (
+                    <MDTypography variant="body2" color="error" mb={2}>
+                      Controles indisponíveis: não há Atuador/Endereço cadastrado para este
+                      aparelho.
+                    </MDTypography>
+                  )}
 
+<<<<<<< HEAD
                   {/* Ligar / Desligar */}
                   <MDBox mb={3}>
                     {arSelecionado.acState?.includes("on") ? (
@@ -328,21 +618,73 @@ function Dashboard() {
                         fullWidth
                         startIcon={<PowerSettingsNewIcon />}
                         onClick={() => handleTogglePower("off")}
+=======
+                  {/* Smooth Toggle; a mudança fica pendente até o envio ser confirmado. */}
+                  <MDBox display="flex" alignItems="center" justifyContent="center" mb={1}>
+                    <MDBox textAlign="center">
+                      <MDTypography variant="caption" display="block" mb={1}></MDTypography>
+                      <MDBox
+                        component="button"
+                        type="button"
+                        role="switch"
+                        aria-checked={Boolean(alteracoesPendentes?.ligado)}
+                        aria-label="Smooth Toggle para ligar ou desligar"
+                        disabled={!arSelecionado.atuadorDisponivel}
+                        onClick={() => handleTogglePower(!Boolean(alteracoesPendentes?.ligado))}
+                        sx={(theme) => {
+                          const ligado = Boolean(alteracoesPendentes?.ligado);
+                          return {
+                            position: "relative",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: ligado ? "flex-start" : "flex-end",
+                            width: 148,
+                            height: 44,
+                            px: ligado ? 1.5 : 1.25,
+                            border: 0,
+                            borderRadius: "999px",
+                            bgcolor: ligado ? theme.palette.success.main : theme.palette.grey[500],
+                            color: "#fff",
+                            font: "inherit",
+                            cursor: "pointer",
+                            transition: "background-color 220ms ease",
+                            "&:disabled": { opacity: 0.55, cursor: "not-allowed" },
+                            "&:focus-visible": {
+                              outline: `2px solid ${theme.palette.info.main}`,
+                              outlineOffset: 3,
+                            },
+                          };
+                        }}
+>>>>>>> alteraçao_ligar_desligar_no_modal_e_botaonavegaçao_entre_maps
                       >
-                        Desligar
-                      </MDButton>
-                    ) : (
-                      <MDButton
-                        variant="gradient"
-                        color="success"
-                        fullWidth
-                        startIcon={<PowerSettingsNewIcon />}
-                        onClick={() => handleTogglePower("on")}
-                      >
-                        Ligar
-                      </MDButton>
-                    )}
+                        <MDTypography
+                          variant="button"
+                          fontWeight="bold"
+                          color="white"
+                          sx={{ zIndex: 1 }}
+                        >
+                          {alteracoesPendentes?.ligado ? "Ligado" : "Desligado"}
+                        </MDTypography>
+                        <MDBox
+                          sx={(theme) => ({
+                            position: "absolute",
+                            top: 4,
+                            left: alteracoesPendentes?.ligado ? "calc(100% - 40px)" : 4,
+                            width: 36,
+                            height: 36,
+                            borderRadius: "50%",
+                            bgcolor: "white",
+                            boxShadow: theme.shadows[2],
+                            transition: "left 220ms cubic-bezier(0.4, 0, 0.2, 1)",
+                          })}
+                        />
+                      </MDBox>
+                    </MDBox>
                   </MDBox>
+                  <MDTypography variant="caption" display="block" textAlign="center" mb={3}>
+                    As alterações só seram enviadas se clicar no botão &quot;Enviar
+                    Alterações&quot;.
+                  </MDTypography>
 
                   {/* Temperatura */}
                   <MDBox
@@ -365,24 +707,44 @@ function Dashboard() {
                       <IconButton
                         color="info"
                         onClick={() => handleAdjustTemp(-1)}
-                        disabled={arSelecionado.tempC === null}
+                        disabled={
+                          !arSelecionado.atuadorDisponivel ||
+                          !Number.isFinite(alteracoesPendentes?.tempC)
+                        }
                       >
                         <RemoveIcon />
                       </IconButton>
 
                       <MDTypography variant="h6" sx={{ minWidth: "65px", textAlign: "center" }}>
-                        {Number.isFinite(arSelecionado.tempC) ? `${arSelecionado.tempC}°C` : "--"}
+                        {Number.isFinite(alteracoesPendentes?.tempC)
+                          ? `${alteracoesPendentes.tempC}°C`
+                          : "--"}
                       </MDTypography>
 
                       <IconButton
                         color="info"
                         onClick={() => handleAdjustTemp(1)}
-                        disabled={arSelecionado.tempC === null}
+                        disabled={
+                          !arSelecionado.atuadorDisponivel ||
+                          !Number.isFinite(alteracoesPendentes?.tempC)
+                        }
                       >
                         <AddIcon />
                       </IconButton>
                     </MDBox>
                   </MDBox>
+
+                  <MDButton
+                    variant="gradient"
+                    color="info"
+                    fullWidth
+                    disabled={
+                      !arSelecionado.atuadorDisponivel || !haAlteracoes || enviandoAlteracoes
+                    }
+                    onClick={handleEnviarAlteracoes}
+                  >
+                    {enviandoAlteracoes ? "Enviando..." : "Enviar Alterações"}
+                  </MDButton>
                 </>
               )}
 
@@ -397,6 +759,7 @@ function Dashboard() {
                 sx={{
                   p: 2,
                   borderRadius: 2,
+<<<<<<< HEAD
                   backgroundColor: arSelecionado.acState?.includes("on")
                     ? "rgba(46, 125, 50, 0.12)"
                     : arSelecionado.gerenciavel && !arSelecionado.statusConhecido
@@ -408,12 +771,37 @@ function Dashboard() {
                     : arSelecionado.gerenciavel && !arSelecionado.statusConhecido
                     ? "warning.main"
                     : "error.main",
+=======
+                  backgroundColor:
+                    arSelecionado.online === false && arSelecionado.gerenciavel
+                      ? "rgba(158, 158, 158, 0.12)"
+                      : arSelecionado.acState?.includes("on")
+                      ? "rgba(46, 125, 50, 0.12)"
+                      : arSelecionado.gerenciavel && !arSelecionado.statusConhecido
+                      ? "rgba(237, 108, 2, 0.12)"
+                      : "rgba(211, 47, 47, 0.12)",
+                  border: "1px solid",
+                  borderColor:
+                    arSelecionado.online === false && arSelecionado.gerenciavel
+                      ? "grey.500"
+                      : arSelecionado.acState?.includes("on")
+                      ? "success.main"
+                      : arSelecionado.gerenciavel && !arSelecionado.statusConhecido
+                      ? "warning.main"
+                      : "error.main",
+>>>>>>> alteraçao_ligar_desligar_no_modal_e_botaonavegaçao_entre_maps
                 }}
               >
                 <MDTypography
                   variant="h6"
                   color={
+<<<<<<< HEAD
                     arSelecionado.acState?.includes("on")
+=======
+                    arSelecionado.online === false && arSelecionado.gerenciavel
+                      ? "text"
+                      : arSelecionado.acState?.includes("on")
+>>>>>>> alteraçao_ligar_desligar_no_modal_e_botaonavegaçao_entre_maps
                       ? "success"
                       : arSelecionado.gerenciavel && !arSelecionado.statusConhecido
                       ? "warning"
@@ -441,5 +829,9 @@ function Dashboard() {
 }
 
 export default Dashboard;
+<<<<<<< HEAD
 // index.js
 // Exibindo index.js.
+=======
+
+>>>>>>> alteraçao_ligar_desligar_no_modal_e_botaonavegaçao_entre_maps
